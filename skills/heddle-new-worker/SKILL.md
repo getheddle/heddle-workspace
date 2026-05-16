@@ -25,25 +25,34 @@ worker config. Use it. Don't hand-write YAML when the scaffolder exists.
    step genuinely requires frontier reasoning. Cost and privacy live or
    die on this choice. See `anchors/PHILOSOPHY.md` §1.
 
-3. **Pick `schema_ref` over inline schemas when you can.** Pointing to
+3. **Sensible, inspectable defaults in the worker config itself.**
+   Every YAML field has a default the user can read in the scaffolded
+   file — no hidden conventions. If your worker accepts optional
+   configuration (timeouts, retry limits, output formats), put a
+   reasonable default in the scaffolded YAML with a comment naming
+   *why* that default, not just *what* it is. The user shouldn't have
+   to read source to learn what the worker chose on their behalf. See
+   `anchors/PHILOSOPHY.md` §3.
+
+4. **Pick `schema_ref` over inline schemas when you can.** Pointing to
    a Pydantic model in `heddle.core.messages` or a worker-specific
    model file gives you typed Python on the worker side for free. Inline
    schemas are appropriate only when the worker's I/O has no Python
    counterpart.
 
-4. **Keep schemas shallow.** Required field types at the top level. No
+5. **Keep schemas shallow.** Required field types at the top level. No
    nested required structures, no `$ref`, no `oneOf`. Invariant 5 in
    `DESIGN_INVARIANTS.md` makes deep schemas silently pass through; deep
    validation is the LLM's job via system-prompt instructions, not the
    contract's job.
 
-5. **Validate**:
+6. **Validate**:
 
    ```bash
    uv run heddle validate configs/workers/your-worker.yaml
    ```
 
-6. **Test in Workshop**:
+7. **Test in Workshop**:
 
    ```bash
    uv run heddle workshop

@@ -15,7 +15,29 @@ format model.
 
 ## [Unreleased]
 
-_Nothing yet._
+### Changed
+
+- `anchors/PHILOSOPHY.md` §3 broadened from "Zero-config UX is the
+  headline" to "Progressive disclosure with sensible, inspectable
+  defaults" — the principle now spans UI, API, and architecture
+  rather than just first-run UX, and explicitly names *inspectability*
+  as the load-bearing second half (every default the system picks
+  must be visible somewhere the user can read; no magic).
+- `anchors/PHILOSOPHY.md` Anti-patterns list adds the
+  inspectability-failure anti-pattern ("hide the decision in code and
+  document it in the docstring") and re-frames the zero-config
+  anti-pattern in the new vocabulary.
+
+### Added
+
+- `skills/heddle-orient/SKILL.md` "rules to keep in mind" list grew
+  from three to four items; progressive disclosure is now a top-level
+  orientation rule alongside upstream-source-of-truth, statelessness,
+  and solo/SMB orientation.
+- `skills/heddle-new-worker/SKILL.md` adds an explicit step on
+  scaffolding sensible, inspectable defaults in the worker YAML —
+  every optional field should have a default the user can read,
+  preferably with a one-line comment explaining *why* that default.
 
 ## [0.1.0] — 2026-05-15
 

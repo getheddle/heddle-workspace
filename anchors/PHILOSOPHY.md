@@ -42,15 +42,50 @@ If your change quietly routes private data to a remote provider, it
 violates this. Even logging into a hosted telemetry service for private
 workloads is suspect.
 
-### 3. Zero-config UX is the headline
+### 3. Progressive disclosure with sensible, inspectable defaults
 
-`heddle setup` should "just work" on a Mac with LM Studio or Ollama
-installed. `heddle workshop` should open a browser tab that lets a
-non-engineer try the shipped workers. Configuration files are for
-*customization*, not for *first run*.
+The system works out of the box for the common case, reveals
+complexity only when the user reaches for it, and never hides what it
+has decided on the user's behalf. This applies across UI, API, and
+architecture — not just first-run UX.
 
-If a feature requires the user to write a config to use it at all, ask
-whether the default could be intelligent enough to skip that step.
+- **UI.** `heddle setup` auto-detects backends and writes a working
+  config without asking. `heddle workshop` opens a browser tab and
+  runs the shipped workers with no prior configuration. The three
+  usage paths — Workshop, guided CLI scaffolding, distributed
+  deployment — disclose complexity in that order. A user can reach a
+  result on path 1 without ever seeing paths 2 or 3.
+- **API.** Worker base classes work with no arguments for the common
+  case and accept progressively-typed configuration for advanced use.
+  Typed Pydantic messages mean optional fields stay invisible until
+  someone needs them; required fields surface with type errors at the
+  point of use.
+- **Architecture.** `InMemoryBus` runs in-process for tests and small
+  deployments — same interface, same semantics, no external broker.
+  `NATSBus` is the production substitute. Custom transports plug in
+  without touching higher layers. Three model tiers (local / standard
+  / frontier) let a workflow start fully local and grow into hybrid
+  deployment one step at a time.
+- **Inspectability — the half that's easy to forget.** Every default
+  must be visible somewhere. `heddle config show` prints the active
+  configuration with provenance. `heddle validate` surfaces what each
+  worker's contract actually requires. The setup wizard writes its
+  decisions to `~/.heddle/config.yaml` where the user can read and
+  edit them. Worker YAMLs are the source of truth for I/O schemas —
+  no hidden conventions. There is no "magic" that the user can't see
+  after the fact.
+
+The two halves are both load-bearing. A feature that requires the
+user to choose something before first use violates the *sensible
+defaults* half. A feature whose behaviour can't be inspected after
+the fact violates the *inspectability* half — even if the defaults
+are great. Both fail the test.
+
+When proposing a new feature: if it requires a config file before
+first use, ask whether a sensible default could remove the step. If
+its behaviour depends on internal state the user can't query, surface
+that state through a CLI command, a Workshop view, or a written
+config artefact.
 
 ### 4. Workshop is the design surface, not the auxiliary
 
@@ -145,6 +180,11 @@ philosophy above:
 - **"Let's optimize for the 1000-engineer use case."** Wrong audience.
   Heddle is solo/SMB-first; cross-organization scale is a non-goal of v1.
 - **"Let's add a feature that requires writing a config file before
-  first use."** Breaks zero-config.
+  first use."** Breaks the sensible-defaults half of progressive
+  disclosure.
+- **"Let's hide the decision in code and document it in the docstring."**
+  Breaks the inspectability half of progressive disclosure. If a user
+  has to read source to learn what the system chose, the system has
+  failed them.
 - **"Let's match Kubernetes idioms."** Warp explicitly rejects k8s
   ergonomics. Heddle does too.

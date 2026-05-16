@@ -40,13 +40,17 @@ getheddle.github.io           org-level overview site (planned → getheddle.dev
 - **warp-design**: ADRs, evolution log, vision docs. No code.
 - **warp** (planned): Swift daemon for macOS-first ad-hoc clustering.
 
-## The three rules to keep in mind
+## The four rules to keep in mind
 
 1. **heddle is upstream.** Schemas, subjects, queue groups originate
    there. Downstream repos vendor or mirror; they never invent.
 2. **Workers are stateless** in every language. Reset between tasks.
    Mandatory.
-3. **Solo / SMB / on-prem orientation.** If a change implicitly assumes
+3. **Progressive disclosure with sensible, inspectable defaults.**
+   The common case works with no configuration. Complexity reveals
+   itself only when the user reaches for it. Every default the system
+   picks is visible somewhere the user can read. No magic.
+4. **Solo / SMB / on-prem orientation.** If a change implicitly assumes
    a platform team or k8s ops, push back.
 
 ## When to read deeper
