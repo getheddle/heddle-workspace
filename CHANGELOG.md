@@ -15,6 +15,39 @@ format model.
 
 ## [Unreleased]
 
+### Changed
+
+- `agents/heddle-contract-reviewer.md` — sharpened after first
+  field-use exposed three gaps:
+  - **C1 split into C1a (vendoring drift) and C1b (wire ≡ source of
+    truth).** A field that exists on the wire today (SDK models,
+    middleware-injected, etc.) but is not declared in
+    `core/messages.py` or `schemas/v1/*` is a **VIOLATION** under
+    C1b. The previous rubric only caught hand-edited schema files
+    and missed live-but-undeclared fields like `_trace_context`,
+    which appears in both SDK models but in no upstream schema.
+  - **Verification transparency required.** When schema sync is
+    checked, the agent must run `python tools/sync_schemas.py
+    --check` from `heddle-sdk/` and quote the output. "Schema
+    manifest is in sync" without naming the verification method is
+    no longer acceptable — a future reader needs to know whether the
+    claim came from the canonical tool or from manual file
+    comparison.
+  - **Envelope-coverage check** added as a systematic step: for each
+    envelope in upstream `core/messages.py`, confirm a corresponding
+    model exists in both `.NET` and Swift directories. Missing a
+    downstream model is a C6 violation even when no diff touched the
+    envelope. This is the rule that catches "we added X upstream a
+    month ago and forgot to mirror it" (the gap that surfaced
+    Swift's missing `CheckpointState`).
+- `agents/heddle-invariant-guard.md` — added a "When not to use this
+  agent" section: this agent is a *diff reviewer*, not a codebase
+  auditor. A bare "audit the codebase" prompt returns shallow grep
+  output dressed as a review. The recommended substitute for
+  snapshot audits is `Explore` → triage → optionally this agent
+  per-file on surviving candidates. The section documents the
+  workflow so future callers don't misuse the tool.
+
 ### Added
 
 - `install.sh --workspace <path>` mode — same symlink install as

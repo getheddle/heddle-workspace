@@ -33,10 +33,21 @@ reviewer.
 
 ### Cross-repo invariants (from `anchors/INVARIANTS.md`)
 
-- **C1 — Schema source of truth.** `heddle/schemas/v1/*.schema.json` is
-  generated from `heddle.core.messages`. `heddle-sdk/schemas/v1/*` is
-  vendored from `heddle/schemas/v1/*` via `tools/sync_schemas.py`. The
-  manifest commit/hashes must match.
+- **C1 — Schema source of truth.** Two distinct checks, both required:
+  - **C1a — Vendoring drift.** `heddle/schemas/v1/*.schema.json` is
+    generated from `heddle.core.messages`. `heddle-sdk/schemas/v1/*`
+    is vendored from `heddle/schemas/v1/*` via
+    `tools/sync_schemas.py`. The manifest commit/hashes must match.
+  - **C1b — Wire ≡ source of truth.** A field that exists on the wire
+    today (declared in SDK models, injected by middleware like
+    `heddle.tracing.otel`, or otherwise serialized into a
+    `TaskMessage`/`TaskResult`/`OrchestratorGoal`) but is **not**
+    declared in `heddle.core.messages` and **not** in
+    `schemas/v1/*.schema.json` is a C1 violation. The schemas don't
+    set `additionalProperties: false`, so non-conforming senders
+    pass silently — that's the failure mode this check catches, not
+    something the mechanical vendoring drift check covers. Flag as
+    **VIOLATION**, not RISK.
 - **C2 — Subject names byte-identical.** `heddle.tasks.incoming`,
   `heddle.tasks.{worker_type}.{tier}`,
   `heddle.results.{parent_task_id or "default"}` (canonical wire form),
@@ -81,20 +92,41 @@ reviewer.
    the *seam*, not one side. If only one of the two is checked out,
    note the limitation in your verdict.
 
-2. For each changed file:
+2. **Verify schema sync explicitly.** Run
+   `python tools/sync_schemas.py --check` from `heddle-sdk/` and quote
+   its output in your verdict. If the tool is not present or fails to
+   run, fall back to comparing files manually — but say which path you
+   took. "Schema manifest is in sync" without naming the verification
+   method is not acceptable: a future reader needs to know whether the
+   claim came from the canonical tool or from your file comparison.
+
+3. **Envelope coverage check.** For each envelope in upstream
+   `heddle/src/heddle/core/messages.py` (`TaskMessage`, `TaskResult`,
+   `OrchestratorGoal`, `CheckpointState`, anything else defined
+   there), confirm a corresponding model exists in
+   `heddle-sdk/dotnet/src/Heddle.Sdk/Models*` and
+   `heddle-sdk/swift/Sources/HeddleActor/Models*`. Missing a downstream
+   model is a C6 VIOLATION even when no diff touched the envelope —
+   this is the rule that catches "we added X upstream a month ago and
+   forgot to mirror it." Do this check on every snapshot review and on
+   every diff that touches `messages.py` or `schemas/v1/*`.
+
+4. For each changed file:
 
    - Which invariants could this affect (C1–C6)?
    - Does the change land coherently in both languages, or only one?
    - Is the schema sync manifest up to date?
    - Are subject/queue-group literals exact across languages?
 
-3. Identify *missing* changes — files that should have been updated but
+5. Identify *missing* changes — files that should have been updated but
    weren't:
 
    - New field in `messages.py` but no schema regeneration.
    - Schema sync'd but `.NET` / Swift models not aligned.
    - .NET model updated but Swift wasn't (C6 violation).
    - Subject added but only one SDK's `Subjects` helper has it.
+   - Upstream envelope with no downstream model (covered by the
+     envelope-coverage check in step 3).
 
 ## Output format
 
