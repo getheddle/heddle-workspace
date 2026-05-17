@@ -29,7 +29,8 @@ This repository exists so that AI coding assistants working in any
 | `anchors/CONTRACT_MAP.md` | Schema source-of-truth, sync direction, wire-protocol contract. |
 | `skills/<name>/SKILL.md` | User-invokable workflows (`/heddle-orient`, etc.). |
 | `agents/<name>.md` | Subagent definitions (architect, reviewers). |
-| `install.sh` | Symlink toolkit `skills/` and `agents/` into a target repo's `.claude/`. |
+| `hooks/settings.template.json` | Opt-in hooks template for Python lint + cross-repo edit warnings. See `hooks/README.md`. |
+| `install.sh` | Symlink toolkit `skills/` and `agents/` into a target repo's `.claude/`; optional `--hooks` to drop the template. |
 
 ## Getting started
 
@@ -99,6 +100,61 @@ manual.) After cloning the siblings, run the same install:
 ```bash
 ./heddle-agent-toolkit/install.sh --workspace .
 ```
+
+### Optional: enable hooks
+
+The toolkit ships an opt-in hooks template (`hooks/settings.template.json`)
+that adds two Claude Code hooks tuned to a Heddle workspace:
+
+- **PostToolUse** — auto-`ruff --fix` on Python edits under `heddle/`.
+- **PreToolUse** — reminder to run `/heddle-contract-sync` when editing
+  schemas or vendored SDK models.
+
+Enable when running the installer:
+
+```bash
+./heddle-agent-toolkit/install.sh --workspace --hooks .
+```
+
+The flag copies the template only if no `.claude/settings.json` exists
+yet. If you already have one, see `hooks/README.md` for manual merge.
+
+### Optional: further Claude Code tuning
+
+After the workspace is bootstrapped, two add-ons further improve the
+agent environment. Both are per-user (not per-workspace), so set them
+up once.
+
+**`claude-code-setup` plugin.** A meta-skill that analyzes the current
+workspace and recommends additional automations (hooks, subagents,
+skills, MCP servers) specific to what you've checked out — useful when
+you add a new sibling app to the workspace.
+
+```text
+/plugin marketplace add claude-plugins-official
+/plugin install claude-code-setup@claude-plugins-official
+```
+
+Invoke from a workspace-root session:
+
+```text
+/claude-code-setup:claude-automation-recommender
+```
+
+**MCP servers.** Two materially improve Heddle-family work:
+
+| Server | Why |
+|---|---|
+| `github` | Cross-repo PR/issue/CI for `getheddle/*`. Pairs with `/cross-repo-pr`. |
+| `context7` | Live docs for Pydantic, nats-py, structlog, DuckDB, LanceDB. |
+
+```bash
+claude mcp add github
+claude mcp add context7
+```
+
+The generated workspace `AGENTS.md` (when you run with `--workspace`)
+documents both of these for you and your collaborators.
 
 ### Optional: also install into individual repos
 

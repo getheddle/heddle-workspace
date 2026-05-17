@@ -1,0 +1,29 @@
+{
+  "//": "Heddle-family hooks template. Merge into your .claude/settings.json (workspace or per-repo) by hand — install.sh --hooks copies this file only when no settings.json exists. See hooks/README.md.",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -lc 'f=\"$CLAUDE_FILE_PATHS\"; case \"$f\" in *heddle/src/*.py|*heddle/tests/*.py) cd \"$(echo \"$f\" | sed -E \"s|(.*/heddle)/.*|\\1|\")\" 2>/dev/null && uv run ruff check --fix --quiet \"$f\" 2>&1 | tail -20 ;; esac'",
+            "description": "Auto-fix ruff issues on Python edits inside heddle/"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -lc 'f=\"$CLAUDE_FILE_PATHS\"; case \"$f\" in *heddle/schemas/v1/*|*heddle-sdk/dotnet/src/*/Models/*|*heddle-sdk/swift/Sources/HeddleActor/Models/*) echo \"NOTE: editing a wire-protocol artifact ($f). heddle/ is upstream; heddle-sdk/ vendors. Run /heddle-contract-sync after this edit, and consider /cross-repo-pr.\" >&2 ;; esac; exit 0'",
+            "description": "Warn when editing schemas or vendored SDK models; remind to run contract-sync"
+          }
+        ]
+      }
+    ]
+  }
+}

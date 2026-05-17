@@ -15,6 +15,30 @@ format model.
 
 ## [Unreleased]
 
+### Added
+
+- `agents/pyproject-deps-reviewer.md` — read-only reviewer for Python
+  dependency changes (extras coverage, version drift, MPL-2.0 license
+  compatibility, orphan deps, uv.lock hygiene). Spawn when a diff
+  touches `pyproject.toml` or `uv.lock`.
+- `agents/mkdocs-doc-reviewer.md` — read-only reviewer for MkDocs
+  docs changes in `heddle/` and `heddle-sdk/` (nav coherence,
+  cross-refs, code-block tags, cross-repo doc consistency).
+- `skills/cross-repo-pr/` — coordinates paired PRs across `heddle`
+  (upstream) and `heddle-sdk` (downstream). Wraps
+  `/heddle-contract-sync`, sets matching branch names, drafts
+  cross-linked PR bodies, and enforces upstream-first merge order.
+- `hooks/settings.template.json` + `hooks/README.md` — opt-in Claude
+  Code hooks template. PostToolUse auto-ruff on Python edits in
+  `heddle/`; PreToolUse reminder when editing schemas or vendored SDK
+  models.
+- `install.sh --hooks` — copies the hooks template to
+  `<target>/.claude/settings.json` only when no settings file exists
+  (never merges; that's manual by design).
+- README and workspace-extras `AGENTS.md` now document the optional
+  `claude-code-setup` plugin and the recommended MCP servers
+  (`github`, `context7`) for further Claude Code tuning.
+
 ### Removed
 
 - `audits/` directory and its four files (`audit-heddle.md`,

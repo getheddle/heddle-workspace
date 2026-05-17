@@ -4,6 +4,7 @@
 # Usage:
 #   ./install.sh <target-repo-path>            # single-repo install
 #   ./install.sh --workspace <workspace-path>  # workspace install
+#   ./install.sh --hooks <target>              # also drop hooks template
 #
 # Single-repo mode (default): creates symlinks inside
 # <target>/.claude/skills/ and <target>/.claude/agents/ pointing back
@@ -16,23 +17,38 @@
 # parent directory holding the Heddle family repos and consuming apps
 # as flat siblings. See anchors/WORKSPACE.md for the convention.
 #
+# Hooks (--hooks): copies hooks/settings.template.json to
+# <target>/.claude/settings.json ONLY if no settings.json exists. We
+# never merge JSON automatically — if a settings file already exists,
+# see hooks/README.md for the manual merge steps. Can be combined with
+# --workspace.
+#
 # Idempotent: re-running replaces existing toolkit-owned symlinks but
 # does not touch entries that are not toolkit symlinks. Workspace
-# extras (AGENTS.md, .code-workspace) are only created when absent; an
-# existing file is never overwritten.
+# extras (AGENTS.md, .code-workspace, settings.json) are only created
+# when absent; an existing file is never overwritten.
 
 set -euo pipefail
 
 mode="repo"
-if [[ "${1:-}" == "--workspace" ]]; then
-    mode="workspace"
-    shift
-fi
+install_hooks=0
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --workspace) mode="workspace"; shift ;;
+        --hooks)     install_hooks=1;   shift ;;
+        --)          shift; break ;;
+        -*)
+            echo "error: unknown flag '$1'" >&2
+            exit 2 ;;
+        *) break ;;
+    esac
+done
 
 if [[ $# -ne 1 ]]; then
     echo "usage:" >&2
     echo "  $0 <target-repo-path>            # single-repo install" >&2
     echo "  $0 --workspace <workspace-path>  # workspace install" >&2
+    echo "  $0 --hooks <target>              # also drop hooks template" >&2
     exit 2
 fi
 
@@ -146,6 +162,49 @@ siblings.
 \`heddle-agent-toolkit/anchors/WORKSPACE.md\` — the technical
 reference for workspace detection, cross-repo git conventions, and
 path conventions.
+
+## Further tuning of the Claude Code environment
+
+Two optional, recommended add-ons for this workspace:
+
+### \`claude-code-setup\` plugin
+
+The \`claude-code-setup\` plugin (from the
+\`claude-plugins-official\` marketplace) provides a meta-skill —
+\`/claude-code-setup:claude-automation-recommender\` — that analyzes
+this workspace and suggests Claude Code automations (hooks,
+subagents, skills, MCP servers) tailored to what's checked out. Run
+it after adding a new sibling repo, or when you want a second
+opinion on workflow gaps.
+
+Install once per Claude Code user:
+
+\`\`\`
+/plugin marketplace add claude-plugins-official
+/plugin install claude-code-setup@claude-plugins-official
+\`\`\`
+
+Then invoke from any session at this workspace root:
+
+\`\`\`
+/claude-code-setup:claude-automation-recommender
+\`\`\`
+
+It only reads the workspace; it does not modify files. Ask Claude
+to implement specific recommendations.
+
+### MCP servers
+
+Two MCP servers materially improve Heddle-family work:
+
+| Server | Why | Install |
+|---|---|---|
+| \`github\` | Cross-repo PR/issue/CI access for \`getheddle/*\` repos; pairs well with \`/cross-repo-pr\`. | \`claude mcp add github\` |
+| \`context7\` | Live docs for Pydantic, nats-py, structlog, DuckDB, LanceDB, etc. — avoids stale-recall errors. | \`claude mcp add context7\` |
+
+MCP config is per-user; you only do this once. See
+\`hooks/README.md\` in the toolkit for the hooks template that
+complements these.
 EOF
         echo "wrote:   AGENTS.md"
     else
@@ -189,6 +248,19 @@ link_dir agents
 
 if [[ "$mode" == "workspace" ]]; then
     install_workspace_extras "$target_abs"
+fi
+
+if [[ "$install_hooks" == "1" ]]; then
+    settings="$target_abs/.claude/settings.json"
+    template="$toolkit_root/hooks/settings.template.json"
+    if [[ ! -e "$template" ]]; then
+        echo "skip:    hooks (template not found at $template)"
+    elif [[ -e "$settings" ]]; then
+        echo "skip:    settings.json (exists — see hooks/README.md to merge by hand)"
+    else
+        cp "$template" "$settings"
+        echo "wrote:   .claude/settings.json (from hooks template)"
+    fi
 fi
 
 echo
