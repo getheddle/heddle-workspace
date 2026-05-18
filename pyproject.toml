@@ -1,0 +1,32 @@
+[project]
+name = "heddle-workspace"
+version = "0.2.0"
+description = "Workspace lifecycle CLI for Heddle-based projects (umbrella repo, manifest, sync)."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MPL-2.0" }
+authors = [{ name = "Hooman Mehr" }]
+dependencies = [
+    "pyyaml>=6.0",
+    "questionary>=2.0",
+]
+
+[project.scripts]
+workspace = "heddle_workspace.cli:main"
+
+[dependency-groups]
+dev = ["pytest>=8.0"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/heddle_workspace"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.ruff.lint]
+extend-select = ["I", "B", "UP", "SIM"]

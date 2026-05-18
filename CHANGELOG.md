@@ -30,6 +30,17 @@ format model.
 
 ### Added
 
+- `bin/workspace` CLI + `src/heddle_workspace/` Python package
+  implementing the workspace lifecycle subcommands designed in
+  `docs/WORKSPACE_SYNC_DESIGN.md`: `init` (interactive wizard via
+  `questionary`, plus `--non-interactive` for scripting), `link`
+  (fetch + `merge --allow-unrelated-histories` for joining a
+  divergent second machine), `sync` (clone missing manifest entries;
+  fetch, never auto-pull, the rest), `status` (read-only report),
+  `add` / `rm` (manifest edits), `doctor` (remote reachability +
+  `.gitignore` drift check). Uses `uv run` so deps (`pyyaml`,
+  `questionary`) stay isolated; `bin/workspace` is the shim. Smoke
+  tests for the manifest round-trip live in `tests/test_manifest.py`.
 - `docs/WORKSPACE_SYNC_DESIGN.md` — full design rationale for the
   workspace-sync facility: the umbrella git repo on the project's own
   org, the `.heddle-workspace.yaml` manifest format with remote URLs,
