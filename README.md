@@ -55,6 +55,61 @@ machines, and kept in sync across team members:
 | `agents/<name>.md` | Subagent definitions (architect, reviewers). |
 | `hooks/settings.template.json` | Opt-in hooks template for Python lint + cross-repo edit warnings. See `hooks/README.md`. |
 | `install.sh` | Symlink toolkit `skills/` and `agents/` into a target repo's `.claude/`; optional `--hooks` to drop the template. |
+| `bin/workspace` | `workspace` CLI: `init / link / sync / status / add / rm / doctor`. Requires `uv`. |
+| `src/heddle_workspace/` | Python package backing the CLI. |
+| `docs/WORKSPACE_SYNC_DESIGN.md` | Full design spec for the umbrella-repo lifecycle. |
+
+## The `workspace` CLI
+
+The CLI bootstraps and syncs a Heddle workspace as a private umbrella
+git repo on your project's own GitHub org. Full design rationale is in
+[`docs/WORKSPACE_SYNC_DESIGN.md`](docs/WORKSPACE_SYNC_DESIGN.md);
+quick reference in
+[`anchors/WORKSPACE.md`](anchors/WORKSPACE.md#binworkspace-cli--quick-reference).
+
+Prerequisite: [`uv`](https://docs.astral.sh/uv/) on PATH.
+
+### Bootstrap a new workspace (Machine A)
+
+```bash
+cd /path/to/your-project-workspace
+./heddle-workspace/bin/workspace init
+# Interactive wizard: name, project GitHub org, which detected child
+# repos to include in the manifest.
+```
+
+The wizard writes `.heddle-workspace.yaml`, a workspace-aware
+`.gitignore`, creates an untracked `(local-only)/` carve-out, and
+commits the umbrella's first revision. Then publish:
+
+```bash
+gh repo create <project-org>/<workspace-name> --private --source=. --remote=origin
+git push -u origin main
+```
+
+### Link a divergent workspace on a second machine (Machine B)
+
+```bash
+cd /path/to/existing-divergent-workspace
+git add -A && git commit -m "machine-b state at link time"
+./heddle-workspace/bin/workspace link git@github.com:<project-org>/<workspace-name>.git
+# fetches + git merge --allow-unrelated-histories
+# stops on conflicts for you to resolve manually
+./heddle-workspace/bin/workspace sync     # after conflicts resolved
+git push origin main
+```
+
+### Day-to-day
+
+```bash
+workspace status            # what's present, what's dirty, what's missing
+workspace add <path>        # register a new sibling repo
+workspace sync              # clone any manifest entry not yet on this machine
+workspace doctor            # verify remotes reachable + .gitignore in sync
+```
+
+Non-interactive mode (`workspace init --non-interactive --name X
+--project-org Y`) is available for scripting and CI.
 
 ## Getting started
 

@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# heddle-workspace `workspace` CLI shim.
+#
+# Resolves to the heddle-workspace install whose `bin/` contains this script,
+# even when invoked through a symlink from a workspace root's `bin/workspace`.
+# Uses `uv run` so dependencies (pyyaml, questionary) are managed in a project
+# venv without polluting the user's environment.
+
+set -euo pipefail
+
+# Resolve symlinks to find the real heddle-workspace directory.
+SOURCE="${BASH_SOURCE[0]}"
+while [ -L "$SOURCE" ]; do
+    DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
+    SOURCE="$(readlink "$SOURCE")"
+    [[ "$SOURCE" != /* ]] && SOURCE="$DIR/$SOURCE"
+done
+BIN_DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
+TOOLKIT_DIR="$(cd -P "$BIN_DIR/.." && pwd)"
+
+if ! command -v uv >/dev/null 2>&1; then
+    echo "error: \`uv\` is required to run heddle-workspace. Install it from https://docs.astral.sh/uv/" >&2
+    exit 1
+fi
+
+exec uv run --project "$TOOLKIT_DIR" --quiet python -m heddle_workspace "$@"
