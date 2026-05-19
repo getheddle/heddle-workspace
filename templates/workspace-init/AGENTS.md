@@ -10,10 +10,10 @@ Cross-repo invariants, philosophy, schema source-of-truth direction,
 and reusable skills/subagents live in
 [`heddle-workspace/`](heddle-workspace/). The canonical skills live in
 `heddle-workspace/skills/`; subagents live in
-`heddle-workspace/agents/`. Agent-specific discovery paths such as
-`.claude/` and `~/.codex/skills/heddle/` are symlink adapters back to
-those canonical files. See
-`heddle-workspace/docs/AGENT_ADAPTERS.md` for the full adapter map.
+`heddle-workspace/agents/`. Agent-specific discovery paths (`.claude/`,
+`.agents/`, `.cursor/`, `.windsurf/`, `.cline/`, `GEMINI.md`,
+`QWEN.md`, and others) are adapters back to those canonical files.
+See `heddle-workspace/docs/AGENT_ADAPTERS.md` for the full adapter map.
 
 If you are an AI agent, your first step is to invoke
 `/heddle-orient`.

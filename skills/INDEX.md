@@ -1,7 +1,10 @@
 # Heddle Skills Index
 
 Canonical skills live in this directory. Agent-specific discovery
-surfaces should symlink here rather than copying these folders.
+surfaces should symlink here rather than copying these folders. Current
+adapters include `.claude/skills`, `.agents/skills`, `.cline/skills`,
+`.devin/skills`, `.qwen/skills`, `.windsurf/skills`, and Codex's
+`$CODEX_HOME/skills/heddle`.
 
 Each skill is a progressive-disclosure workflow with a
 `SKILL.md` file. Coding agents that do not support skill discovery

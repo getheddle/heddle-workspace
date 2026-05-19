@@ -1,5 +1,7 @@
 # Agent Adapter Map
 
+Last checked against upstream docs: 2026-05-19.
+
 Canonical Heddle agent material lives in this repository:
 
 - `skills/<name>/SKILL.md`
@@ -10,6 +12,11 @@ Canonical Heddle agent material lives in this repository:
 Agent-specific files created by `workspace agent-adapters install` are
 adapters. They should symlink to canonical files or contain only a small
 pointer to them.
+
+The installer is intentionally conservative: it creates missing files,
+updates existing symlinks that point somewhere else, and skips existing
+real files or directories so repo-local agent configuration is not
+overwritten.
 
 ## Installed Adapters
 
@@ -33,7 +40,8 @@ pointer to them.
 - [Cursor rules](https://docs.cursor.com/en/context) live in
   `.cursor/rules` as `.mdc` files with
   frontmatter such as `description`, `globs`, and `alwaysApply`.
-  Cursor also supports `AGENTS.md`.
+  Cursor also supports root `AGENTS.md` files for simpler project
+  instructions.
 - [Windsurf Cascade](https://docs.windsurf.com/windsurf/cascade/agents-md)
   supports `AGENTS.md`, workspace rules in
   `.windsurf/rules/*.md`, and workspace skills in

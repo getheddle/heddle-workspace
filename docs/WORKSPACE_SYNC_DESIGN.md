@@ -37,8 +37,10 @@ hosted as a *private* repo on the `IranTransitionProject` GitHub org
 content:
 
 1. **Loose shared files** committed directly — audit reports,
-   `AGENTS.md`, `README.md`, `*.code-workspace`, agent config under
-   `.claude/`, this design doc.
+   `AGENTS.md`, `README.md`, `*.code-workspace`, agent adapter config
+   such as `.claude/`, `.agents/`, `.cursor/`, `.windsurf/`, `.cline/`,
+   `.github/copilot-instructions.md`, `GEMINI.md`, `QWEN.md`, `.rules`,
+   and this design doc.
 2. **A manifest** (`.heddle-workspace.yaml`) — the authoritative list of child
    git repos that belong in this workspace, with their remote URLs and
    default branch.
@@ -57,7 +59,7 @@ IranTransitionProject/                  ← umbrella repo (private)
 ├── bin/workspace                          ← sync tool
 ├── WORKSPACE_SYNC_DESIGN.md               ← this doc
 ├── AGENTS.md, README.md, *AUDIT*.md       ← tracked loose files
-├── .claude/                               ← tracked agent config
+├── .claude/, .agents/, .cursor/, ...      ← tracked agent adapters
 ├── (archive)/                             ← tracked (parens = category, not carve-out)
 ├── (local-only)/                          ← UNTRACKED carve-out (see below)
 │
@@ -317,9 +319,10 @@ machine's contents into it.
 ### Pick a primary
 
 Pick whichever machine has the more current loose-file state (audit
-reports, `AGENTS.md`, `.claude/` config). It doesn't matter which has
-"more" child repos — those reconcile through the manifest. Call it
-**Machine A**; the other is **Machine B**.
+reports, `AGENTS.md`, agent adapter config such as `.claude/` or
+`.agents/`). It doesn't matter which has "more" child repos — those
+reconcile through the manifest. Call it **Machine A**; the other is
+**Machine B**.
 
 ### Phase 1 — Machine A: become the umbrella
 
@@ -421,8 +424,8 @@ usually less error-prone.
 
 ### Day-to-day
 - Work in child repos normally. Each has its own remote and PR flow.
-- Edit audit files, ADR-adjacent docs, or `.claude/` config? Commit
-  to the umbrella.
+- Edit audit files, ADR-adjacent docs, or agent adapter config? Commit
+  it to the umbrella.
 - Added a new child repo? `bin/workspace add <path>`, commit the
   manifest, push the umbrella.
 
@@ -476,4 +479,4 @@ prison.
    per developer; the tool just shells out to `git`. No token handling.
 6. **Which machine is primary for the initial bootstrap?** Affects only
    the first push; either is recoverable. Recommend the machine whose
-   loose-file state (audits, `AGENTS.md`, `.claude/`) is most current.
+   loose-file state (audits, `AGENTS.md`, agent adapters) is most current.

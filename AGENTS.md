@@ -61,7 +61,7 @@ job. Defined in [`agents/INDEX.md`](agents/INDEX.md):
   when changes touch `heddle.core.messages`, `schemas/v1/*`, .NET models,
   Swift models, or subject conventions.
 
-### Non-Claude agents
+### Agent adapters
 
 The canonical source is always this repository:
 
@@ -70,12 +70,12 @@ The canonical source is always this repository:
   read manually by agents without native skill support.
 - `agents/<name>.md` for subagent role definitions.
 
-Claude Code discovers those files through `.claude/` symlinks. Codex
-discovers the same skills when they are symlinked under
-`$CODEX_HOME/skills/heddle/` (or `~/.codex/skills/heddle/` if
-`CODEX_HOME` is unset). Other agents use their native project
-instruction or skill paths; the current mapping is in
-`docs/AGENT_ADAPTERS.md`. Install adapters from a workspace root:
+Agent-specific discovery surfaces are adapters. Claude Code discovers
+these files through `.claude/` symlinks; Codex discovers the same skills
+when they are symlinked under `$CODEX_HOME/skills/heddle/` (or
+`~/.codex/skills/heddle/` if `CODEX_HOME` is unset); other agents use
+their native project instruction or skill paths. The current mapping is
+in `docs/AGENT_ADAPTERS.md`. Install adapters from a workspace root:
 
 ```bash
 ./heddle-workspace/bin/install-agent-adapters --workspace .

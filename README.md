@@ -28,8 +28,8 @@ machines, and kept in sync across team members:
 1. **Manifest-driven layout.** `workspace.yaml` declares which repos
    belong in the workspace and where their remotes live. The umbrella
    git repo (private, on the project's own org) tracks loose files,
-   audit reports, agent config, and the manifest — never the contents
-   of the child repos.
+   audit reports, agent adapter config, and the manifest — never the
+   contents of the child repos.
 2. **Interactive bootstrap.** `bin/workspace init` walks you through
    creating a new workspace; `bin/workspace link` pulls an existing
    one into a fresh machine; `bin/workspace sync` reconciles missing
@@ -137,7 +137,7 @@ git clone https://github.com/getheddle/heddle-workspace
 ./heddle-workspace/install.sh --workspace .
 ```
 
-That's it. You now have:
+For Claude Code, that is enough. You now have:
 
 - A `.claude/` populated with toolkit skills + subagents.
 - A starter workspace-level `AGENTS.md` (edit it to describe your project).

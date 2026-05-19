@@ -1,9 +1,10 @@
 # Heddle Subagents Index
 
-Canonical subagent definitions live in this directory. Claude Code can
-discover them through `.claude/agents` symlinks; other agents should read
-the relevant file on demand when they support delegated review or
-planning roles.
+Canonical subagent definitions live in this directory. Agent adapters
+symlink these files into native discovery paths where supported (for
+example `.claude/agents` and `.cline/agents`). Agents without native
+subagent discovery should read the relevant file on demand when they
+support delegated review or planning roles.
 
 | Subagent | Use |
 |---|---|
