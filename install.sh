@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 # install.sh — link toolkit skills and agents into a target's .claude/
 #
+# This is the legacy Claude Code bootstrap. To install all supported
+# discovery adapters for Claude, Codex, Cursor, Windsurf, Cline, and
+# other coding agents, prefer:
+#   ./bin/install-agent-adapters --workspace <workspace-path>
+#
 # Usage:
 #   ./install.sh <target-repo-path>            # single-repo install
 #   ./install.sh --workspace <workspace-path>  # workspace install
@@ -142,19 +147,26 @@ and one or more consuming applications as flat siblings.
 
 Cross-repo invariants, philosophy, schema source-of-truth direction,
 and reusable skills/subagents live in
-[\`heddle-workspace/\`](heddle-workspace/). The toolkit's
-skills and subagents are symlinked into this workspace's \`.claude/\`,
-so any Claude Code session started at the workspace root has access
-to them.
+[\`heddle-workspace/\`](heddle-workspace/). The canonical skills live in
+\`heddle-workspace/skills/\`; subagents live in
+\`heddle-workspace/agents/\`. Agent-specific discovery paths such as
+\`.claude/\` and \`~/.codex/skills/heddle/\` are symlink adapters back to
+those canonical files.
 
 If you are an AI agent, your first step is to invoke
 \`/heddle-orient\`.
+
+Install or refresh local agent adapters with:
+
+\`\`\`
+./heddle-workspace/bin/install-agent-adapters --workspace .
+\`\`\`
 
 ## Workspace-level vs. repo-level
 
 | Workspace root (here) | Each sibling repo |
 |---|---|
-| \`.claude/\` with toolkit skills + subagents | \`.claude/\` with repo-local commands |
+| Agent adapters pointing to toolkit skills + subagents | Repo-local agent commands and instructions |
 | Cross-cutting design docs and specs that span repos | Repo-internal docs |
 | This \`AGENTS.md\` | Each repo's own \`AGENTS.md\` |
 
@@ -298,3 +310,5 @@ echo
 echo "Done. Next:"
 echo "  - Restart the Claude Code session in the target so it rescans .claude/."
 echo "  - Try /heddle-orient to verify discovery."
+echo "  - For all coding-agent adapters, run:"
+echo "    $toolkit_root/bin/install-agent-adapters --workspace $target_abs"

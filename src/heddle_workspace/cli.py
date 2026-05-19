@@ -10,6 +10,9 @@ from heddle_workspace import (
     add as cmd_add,
 )
 from heddle_workspace import (
+    agent_adapters as cmd_agent_adapters,
+)
+from heddle_workspace import (
     doctor as cmd_doctor,
 )
 from heddle_workspace import (
@@ -176,6 +179,106 @@ def _build_parser() -> argparse.ArgumentParser:
         ),
     )
     s.set_defaults(func=cmd_scaffold.run)
+
+    s = sub.add_parser(
+        "agent-adapters",
+        help="install coding-agent discovery adapters for toolkit skills",
+    )
+    aasub = s.add_subparsers(dest="agent_adapters_command", required=True)
+    ai = aasub.add_parser(
+        "install",
+        help="symlink canonical skills/agents into agent-specific discovery paths",
+    )
+    ai.add_argument(
+        "--agents-standard",
+        dest="agents_standard",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="install shared .agents/skills adapters",
+    )
+    ai.add_argument(
+        "--aider",
+        dest="aider",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="install .aider.conf.yml read-only AGENTS.md adapter",
+    )
+    ai.add_argument(
+        "--cline",
+        dest="cline",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="install .cline rules, skills, and agents adapters",
+    )
+    ai.add_argument(
+        "--claude",
+        dest="claude",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="install .claude/skills and .claude/agents adapters",
+    )
+    ai.add_argument(
+        "--codex",
+        dest="codex",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="install Codex skills under $CODEX_HOME/skills/heddle",
+    )
+    ai.add_argument(
+        "--copilot",
+        dest="copilot",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="install .github/copilot-instructions.md adapter",
+    )
+    ai.add_argument(
+        "--cursor",
+        dest="cursor",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="install .cursor/rules adapter",
+    )
+    ai.add_argument(
+        "--devin",
+        dest="devin",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="install .devin/skills adapters",
+    )
+    ai.add_argument(
+        "--gemini",
+        dest="gemini",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="install GEMINI.md adapter",
+    )
+    ai.add_argument(
+        "--qwen",
+        dest="qwen",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="install QWEN.md and .qwen/skills adapters",
+    )
+    ai.add_argument(
+        "--windsurf",
+        dest="windsurf",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="install .windsurf rules and skills adapters",
+    )
+    ai.add_argument(
+        "--zed",
+        dest="zed",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="install .rules adapter for Zed",
+    )
+    ai.add_argument(
+        "--codex-home",
+        type=Path,
+        help="override Codex home directory (default: $CODEX_HOME or ~/.codex)",
+    )
+    ai.set_defaults(func=cmd_agent_adapters.run)
 
     return p
 

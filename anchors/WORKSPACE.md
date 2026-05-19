@@ -204,6 +204,7 @@ Full reference in `docs/WORKSPACE_SYNC_DESIGN.md`. Briefly:
 | `workspace add <path>` | Append a manifest entry from an existing local repo. |
 | `workspace rm <path>` | Remove a manifest entry (working tree untouched). |
 | `workspace doctor` | Verify each manifest remote is reachable and `.gitignore` covers every entry. |
+| `workspace agent-adapters install` | Install thin adapters from canonical Heddle skills/instructions into coding-agent discovery paths. |
 
 ## Sibling conventions to know
 

@@ -35,7 +35,7 @@ anchors are required reading.
 ### Skills
 
 User-invokable workflows. The full list is in
-[`skills/`](skills/). Common ones:
+[`skills/INDEX.md`](skills/INDEX.md). Common ones:
 
 - `/heddle-orient` — fast cross-repo summary at session start
 - `/heddle-invariants` — pull invariants into context mid-session
@@ -50,7 +50,7 @@ context. Don't read all skill files speculatively.
 ### Subagents
 
 Spawn via the `Agent` tool when you want isolated context for a focused
-job. Defined in [`agents/`](agents/):
+job. Defined in [`agents/INDEX.md`](agents/INDEX.md):
 
 - `heddle-architect` — read-only design consultant. Use **before** writing
   non-trivial code. Returns an implementation plan, not code.
@@ -60,6 +60,31 @@ job. Defined in [`agents/`](agents/):
 - `heddle-contract-reviewer` — cross-repo wire-protocol coherence. Use
   when changes touch `heddle.core.messages`, `schemas/v1/*`, .NET models,
   Swift models, or subject conventions.
+
+### Non-Claude agents
+
+The canonical source is always this repository:
+
+- `skills/<name>/SKILL.md` for workflows. These files use
+  Codex-compatible frontmatter (`name`, `description`) and can also be
+  read manually by agents without native skill support.
+- `agents/<name>.md` for subagent role definitions.
+
+Claude Code discovers those files through `.claude/` symlinks. Codex
+discovers the same skills when they are symlinked under
+`$CODEX_HOME/skills/heddle/` (or `~/.codex/skills/heddle/` if
+`CODEX_HOME` is unset). Other agents use their native project
+instruction or skill paths; the current mapping is in
+`docs/AGENT_ADAPTERS.md`. Install adapters from a workspace root:
+
+```bash
+./heddle-workspace/bin/install-agent-adapters --workspace .
+```
+
+Do not copy skill or subagent text into adapter directories. If an agent
+does not support discovery, start from this `AGENTS.md`, invoke
+`/heddle-orient` by opening `skills/heddle-orient/SKILL.md`, then follow
+the pointers in `skills/INDEX.md` and `agents/INDEX.md`.
 
 ## Non-negotiable rules across the family
 

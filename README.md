@@ -51,13 +51,15 @@ machines, and kept in sync across team members:
 | `anchors/PHILOSOPHY.md` | Design opinions: who Heddle is for, what trade-offs are intentional. |
 | `anchors/INVARIANTS.md` | Pointer to `heddle/docs/DESIGN_INVARIANTS.md` + cross-repo invariants. |
 | `anchors/CONTRACT_MAP.md` | Schema source-of-truth, sync direction, wire-protocol contract. |
-| `skills/<name>/SKILL.md` | User-invokable workflows (`/heddle-orient`, etc.). |
-| `agents/<name>.md` | Subagent definitions (architect, reviewers). |
+| `skills/INDEX.md` + `skills/<name>/SKILL.md` | Canonical user-invokable workflows (`/heddle-orient`, etc.). |
+| `agents/INDEX.md` + `agents/<name>.md` | Canonical subagent definitions (architect, reviewers). |
 | `hooks/settings.template.json` | Opt-in hooks template for Python lint + cross-repo edit warnings. See `hooks/README.md`. |
-| `install.sh` | Symlink toolkit `skills/` and `agents/` into a target repo's `.claude/`; optional `--hooks` to drop the template. |
-| `bin/workspace` | `workspace` CLI: `init / link / sync / status / add / rm / doctor`. Requires `uv`. |
+| `install.sh` | Legacy Claude bootstrap: symlink toolkit `skills/` and `agents/` into a target repo's `.claude/`; optional `--hooks` to drop the template. |
+| `bin/install-agent-adapters` | Install or refresh coding-agent adapters from the canonical toolkit files. |
+| `bin/workspace` | `workspace` CLI: `init / link / sync / status / add / rm / doctor / agent-adapters`. Requires `uv`. |
 | `src/heddle_workspace/` | Python package backing the CLI. |
 | `docs/WORKSPACE_SYNC_DESIGN.md` | Full design spec for the umbrella-repo lifecycle. |
+| `docs/AGENT_ADAPTERS.md` | Source-backed map of coding-agent discovery paths installed by the adapter command. |
 
 ## The `workspace` CLI
 
@@ -106,6 +108,8 @@ workspace status            # what's present, what's dirty, what's missing
 workspace add <path>        # register a new sibling repo
 workspace sync              # clone any manifest entry not yet on this machine
 workspace doctor            # verify remotes reachable + .gitignore in sync
+workspace agent-adapters install
+                            # expose toolkit skills to supported coding agents
 ```
 
 Non-interactive mode (`workspace init --non-interactive --name X
@@ -115,10 +119,10 @@ Non-interactive mode (`workspace init --non-interactive --name X
 
 A Heddle-based project lives in a **workspace** — a parent directory
 that holds the framework, this toolkit, and one or more consuming apps
-as flat siblings. Sessions started at the workspace root get the
-toolkit's skills and subagents for free; cross-repo tooling Just Works
-because the siblings are reachable as `../heddle`, `../heddle-sdk`,
-etc.
+as flat siblings. Once agent adapters are installed, sessions started
+at the workspace root can discover the toolkit's skills and subagents;
+cross-repo tooling Just Works because the siblings are reachable as
+`../heddle`, `../heddle-sdk`, etc.
 
 See `anchors/WORKSPACE.md` for the technical reference.
 
@@ -138,6 +142,13 @@ That's it. You now have:
 - A `.claude/` populated with toolkit skills + subagents.
 - A starter workspace-level `AGENTS.md` (edit it to describe your project).
 - A starter `my-project.code-workspace` for VSCode multi-root.
+
+To expose the same canonical skills and instruction pointers to the
+other supported coding agents:
+
+```bash
+./heddle-workspace/bin/install-agent-adapters --workspace .
+```
 
 Open VSCode with `code my-project.code-workspace`; create your app dir
 as another sibling (`mkdir my-app && cd my-app && uv init`) and add it
@@ -184,6 +195,52 @@ the `bin/workspace` CLI reference. The same flow handles "I want to
 work on this workspace from another machine" and "I'm joining a
 team-mate's workspace" — the umbrella is just a git repo, so cloning
 it on a second machine works the same way.
+
+## Agent adapters
+
+The source of truth for agent behavior is vendor-neutral:
+
+- `skills/<name>/SKILL.md` — workflow instructions with `name` and
+  `description` frontmatter for Codex-style skill discovery.
+- `agents/<name>.md` — role definitions for agents that support
+  delegated review or planning.
+- `AGENTS.md` and `anchors/` — cross-repo orientation and invariants.
+
+Discovery directories are adapters. They should contain symlinks back
+to the canonical files, never copied skill or agent text.
+
+Install or refresh supported coding-agent adapters from a workspace root:
+
+```bash
+./heddle-workspace/bin/install-agent-adapters --workspace .
+```
+
+Equivalent CLI form:
+
+```bash
+./heddle-workspace/bin/workspace -C . agent-adapters install
+```
+
+By default this creates or refreshes:
+
+| Agent | Adapter path |
+|---|---|
+| Agent Skills standard / Amp-compatible skills | `.agents/skills/*` |
+| Aider | `.aider.conf.yml` |
+| Cline | `.cline/rules/*`, `.cline/skills/*`, `.cline/agents/*` |
+| Claude Code | `.claude/skills/*` and `.claude/agents/*.md` |
+| Codex | `$CODEX_HOME/skills/heddle/*`, or `~/.codex/skills/heddle/*` when `CODEX_HOME` is unset |
+| GitHub Copilot | `.github/copilot-instructions.md` |
+| Cursor | `.cursor/rules/heddle-workspace.mdc` |
+| Devin for Terminal | `.devin/skills/*` |
+| Gemini CLI | `GEMINI.md` |
+| Qwen Code | `QWEN.md` and `.qwen/skills/*` |
+| Windsurf | `.windsurf/rules/*` and `.windsurf/skills/*` |
+| Zed | `.rules` |
+
+See `docs/AGENT_ADAPTERS.md` for the source-backed mapping. Use
+`--no-<agent>` flags or `--codex-home <path>` when you only want a
+subset or need to test against a temporary Codex home.
 
 ### Optional: enable hooks
 

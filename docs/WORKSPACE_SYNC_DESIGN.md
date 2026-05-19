@@ -172,6 +172,7 @@ A small CLI. Commands:
 | `workspace add <path>` | Detect remote from existing `.git/config`, append manifest entry, stage `.heddle-workspace.yaml`. Refuses if `path` is under `(local-only)/` or has no remote. |
 | `workspace rm <path>` | Remove manifest entry. Does not delete the working tree (operator does that explicitly). |
 | `workspace doctor` | Verify each manifest remote is reachable and the umbrella's `.gitignore` covers every manifest path. |
+| `workspace agent-adapters install` | Install or refresh thin adapters so coding agents discover canonical Heddle instructions, skills, and subagents without copying their contents. |
 | `workspace overlay add <repo>/<path>` | Promote an untracked file (or directory) inside a child repo into the umbrella's overlay tree. Moves the file to `overlays/<repo>/<path>`, replaces the original with a symlink, and adds `/path` to the child's `.git/info/exclude` so its own `git status` stays clean. |
 | `workspace overlay rm <repo>/<path>` | Reverse: move the overlay back to a real (untracked) file in the child repo. |
 

@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# Install Heddle agent discovery adapters into a workspace.
+#
+# Usage:
+#   ./heddle-workspace/bin/install-agent-adapters --workspace .
+#   ./heddle-workspace/bin/install-agent-adapters --workspace . --no-codex
+#   ./heddle-workspace/bin/install-agent-adapters --workspace . --no-cursor
+#   ./heddle-workspace/bin/install-agent-adapters --workspace . --codex-home /tmp/codex
+
+set -euo pipefail
+
+workspace="."
+args=()
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --workspace)
+            if [[ $# -lt 2 ]]; then
+                echo "error: --workspace requires a path" >&2
+                exit 2
+            fi
+            workspace="$2"
+            shift 2
+            ;;
+        --)
+            shift
+            while [[ $# -gt 0 ]]; do
+                args+=("$1")
+                shift
+            done
+            ;;
+        *)
+            args+=("$1")
+            shift
+            ;;
+    esac
+done
+
+SOURCE="${BASH_SOURCE[0]}"
+while [ -L "$SOURCE" ]; do
+    DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
+    SOURCE="$(readlink "$SOURCE")"
+    [[ "$SOURCE" != /* ]] && SOURCE="$DIR/$SOURCE"
+done
+BIN_DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
+
+exec "$BIN_DIR/workspace" -C "$workspace" agent-adapters install "${args[@]}"
