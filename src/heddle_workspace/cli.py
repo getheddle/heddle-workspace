@@ -30,6 +30,9 @@ from heddle_workspace import (
 from heddle_workspace import (
     overlay_cmd as cmd_overlay,
 )
+from heddle_workspace import (
+    machine as cmd_machine,
+)
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -128,6 +131,22 @@ def _build_parser() -> argparse.ArgumentParser:
         help="<repo>/<path>, e.g. heddle/notes-architecture.md",
     )
     sr.set_defaults(func=cmd_overlay.run)
+
+    s = sub.add_parser(
+        "machine",
+        help="manage the per-machine profile in (local-only)/machine.yaml",
+    )
+    msub = s.add_subparsers(dest="machine_command", required=True)
+    mi = msub.add_parser(
+        "init",
+        help="create an annotated machine.yaml if missing (pre-filled from the local shell)",
+    )
+    mi.add_argument(
+        "--force",
+        action="store_true",
+        help="overwrite an existing machine.yaml",
+    )
+    mi.set_defaults(func=cmd_machine.run)
 
     return p
 

@@ -120,6 +120,13 @@ a project." `(archive)` is *tracked* (shared retired content);
 `(local-only)` is *untracked*. The convention is just naming —
 behavior is enforced by `.gitignore` and the manifest.
 
+One well-known file inside `(local-only)/` has a defined schema:
+`machine.yaml`, the per-machine profile read by skills and agents that
+need to know which optional tools, mounts, or capabilities exist on
+this machine. See [`docs/MACHINE_PROFILE.md`](../docs/MACHINE_PROFILE.md)
+for the schema and consumption rules. Everything else in
+`(local-only)/` is freeform.
+
 ## Cross-repo git operations
 
 The umbrella tracks workspace-level files only; each sibling is its

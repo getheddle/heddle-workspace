@@ -89,10 +89,28 @@ getheddle.github.io           org-level overview site (planned → getheddle.dev
 - Diff that touches `core/messages.py`, `schemas/v1/*`, .NET models, or
   Swift models → spawn `heddle-contract-reviewer`.
 
+## Machine profile
+
+In workspace mode, also surface the per-machine profile at
+`(local-only)/machine.yaml`.
+
+- **If absent:** run
+  `heddle-workspace/bin/workspace -C <workspace-root> machine init`
+  to create an annotated sample pre-filled from the local shell
+  (hostname, OS, common tools). It is idempotent — a no-op if the file
+  already exists. Then read it.
+- **If present:** read `machine.name` and the `capabilities` map; include
+  both in the orientation summary so the user can see which profile is
+  active. Tell the user to edit the file if a capability looks wrong.
+
+Schema, well-known capability keys, and consumption rules:
+`heddle-workspace/docs/MACHINE_PROFILE.md`.
+
 ## What to actually do now
 
 1. State whether you're in workspace mode or single-repo mode, and what
-   you're about to touch. In workspace mode, list the siblings present.
+   you're about to touch. In workspace mode, list the siblings present
+   and the machine profile (or note that none is set).
 2. If the change is multi-repo (e.g., a schema change), invoke
    `/heddle-contract-sync` before committing in either repo.
 3. If you are unsure which invariants apply, invoke `/heddle-invariants`.
@@ -102,6 +120,7 @@ Output a short summary back to the user once oriented:
 > Single-repo: "Oriented. Working in `<repo>`. The relevant anchors are
 > `<list>`. Next step: `<what you propose>`."
 
-> Workspace: "Oriented. Workspace `<name>` with siblings `<list>`. About
-> to touch `<repos>`. The relevant anchors are `<list>`. Next step:
+> Workspace: "Oriented. Workspace `<name>` on machine `<machine.name>`
+> (capabilities: `<list>`). Siblings present: `<list>`. About to touch
+> `<repos>`. The relevant anchors are `<list>`. Next step:
 > `<what you propose>`."
