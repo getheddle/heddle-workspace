@@ -69,6 +69,11 @@ red lines:
    security boundary — never a hint. Convergence detectors are
    side-effect-free.
 
+9. **Middleware Lane: preserve underscore-prefixed keys.** Actors must
+   propagate top-level keys starting with `_` (e.g. `_trace_context`)
+   from request to result. Flag any filter or manual key extraction
+   that omits unknown `_` keys on the outgoing envelope.
+
 ## Architectural direction rules
 
 - **`contrib` → `core` only.** Nothing in `src/heddle/core/` or

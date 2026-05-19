@@ -17,6 +17,7 @@ The eight framework red lines (from the summary section there):
 6. Never publish before subscribing in request-reply.
 7. Never leak full transcripts to all council agents.
 8. Never let a convergence detector mutate the transcript.
+9. Never drop or filter underscore-prefixed envelope keys (Middleware Lane).
 
 ## Cross-repo invariants (added here)
 

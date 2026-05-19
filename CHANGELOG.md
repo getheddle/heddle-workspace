@@ -15,6 +15,10 @@ format model.
 
 ## [Unreleased]
 
+### Changed
+
+- Formalized the **Middleware Lane** pattern in `anchors/CONTRACT_MAP.md` and added it as the 9th Red Line in `anchors/INVARIANTS.md`. This change centralizes the policy for underscore-prefixed envelope keys and provides a cross-reference to the framework invariant in the `heddle` repository.
+
 ### Fixed
 
 - `workspace init` and `workspace status` no longer treat symlinked
@@ -27,6 +31,17 @@ format model.
 
 ### Added
 
+- **Agent adapters for non-Claude discovery** — canonical skills and
+  subagent definitions now remain in `heddle-workspace/skills/` and
+  `heddle-workspace/agents/`, with thin adapters installed by
+  `workspace agent-adapters install` or
+  `bin/install-agent-adapters --workspace <path>`. The installer now
+  covers Claude Code, Codex, Cursor, Windsurf, Cline, Devin for
+  Terminal, Qwen Code, Gemini CLI, GitHub Copilot, Zed, Aider, and the
+  shared `.agents/skills` location used by newer tools such as Amp and
+  Devin. Added `docs/AGENT_ADAPTERS.md`, `skills/INDEX.md`, and
+  `agents/INDEX.md` as vendor-neutral discovery pointers for agents
+  without native skill support.
 - **Overlay mechanism** — share files that conceptually belong inside a
   child repo but that the child repo doesn't want to track (work-in-
   progress notes, session-starter queues, draft architecture docs).

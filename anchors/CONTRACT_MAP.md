@@ -136,7 +136,9 @@ Modern messaging stacks all separate these lanes (HTTP body vs
 traceparent header; Kafka body vs headers; gRPC message vs metadata;
 CloudEvents typed fields vs extensions map). Heddle's wire envelope
 is a single JSON object, so the underscore-prefix convention is what
-distinguishes the lanes within one object.
+distinguishes the lanes within one object. The rule is
+formalized as **Invariant #22** in the framework documentation (see
+**[`heddle/docs/DESIGN_INVARIANTS.md`](../../heddle/docs/DESIGN_INVARIANTS.md#22-middleware-lane)**).
 
 ### Why this matters
 
