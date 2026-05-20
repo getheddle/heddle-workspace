@@ -1,5 +1,9 @@
 # Heddle Skills Index
 
+For the *when, why, and how* of each skill — and how it fits with the
+subagents and the audit-driven maintenance loop — see the workspace
+landing at [`../README.md`](../README.md#tool-catalog--when-why-how).
+
 Canonical skills live in this directory. Agent-specific discovery
 surfaces should symlink here rather than copying these folders. Current
 adapters include `.claude/skills`, `.agents/skills`, `.cline/skills`,

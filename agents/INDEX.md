@@ -1,5 +1,9 @@
 # Heddle Subagents Index
 
+For the *when, why, and how* of each subagent — and how it pairs with
+skills and the audit-cycle pipeline — see the workspace landing at
+[`../README.md`](../README.md#tool-catalog--when-why-how).
+
 Canonical subagent definitions live in this directory. Agent adapters
 symlink these files into native discovery paths where supported (for
 example `.claude/agents` and `.cline/agents`). Agents without native

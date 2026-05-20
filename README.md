@@ -7,7 +7,7 @@ sibling repos are [heddle](https://github.com/getheddle/heddle),
 [warp-design](https://github.com/getheddle/warp-design), and the
 planned `warp`.
 
-Two pillars:
+Three pillars:
 
 ### 1. Agent tooling
 
@@ -40,7 +40,131 @@ machines, and kept in sync across team members:
    ordinary `git merge`. See `docs/WORKSPACE_SYNC_DESIGN.md` for the
    full spec.
 
-## What's here
+### 3. Audit-driven maintenance
+
+So that quality stays high without ad-hoc heroics. The workspace
+treats *audits* as first-class artifacts that *seed* maintenance work,
+and ships a four-agent pipeline to drive the loop:
+
+1. **`audit-runner`** — performs a typed audit (security, deps,
+   schema, contrib, `docs-editorial`, `docs-technical`,
+   `docs-persona`, perf, invariants, data) against one repo and writes
+   the report under `audits/<repo>-audits/`.
+2. **`maintenance-planner`** — converts a completed audit into a
+   maintenance-cycle subfolder under `session-starters/`, surfacing
+   any unresolved decision points for human input.
+3. **`maintenance-implementer`** — executes one lettered session brief
+   from a cycle, surgically, with paired feedback.
+4. **`audit-cycle-coordinator`** — drives the whole loop end-to-end;
+   interactive or scheduled.
+
+Full convention: [`docs/AUDITS.md`](docs/AUDITS.md). Default audience
+catalog for `docs-persona` audits:
+[`docs/AUDIENCE_PERSONAS.md`](docs/AUDIENCE_PERSONAS.md).
+
+## At a glance
+
+The workspace and the three pillars:
+
+```mermaid
+flowchart LR
+  subgraph WS["pf-heddle-workspace/  (umbrella git repo)"]
+    direction TB
+    HW["heddle-workspace/<br/><i>this toolkit</i>"]
+    H["heddle/<br/><i>framework</i>"]
+    SDK["heddle-sdk/<br/><i>.NET + Swift</i>"]
+    APP["your-app/"]
+    AU["audits/<br/><i>per-repo subfolders</i>"]
+    SS["session-starters/<br/><i>cycles + briefs</i>"]
+    RM["roadmap/"]
+  end
+  HW -. anchors + skills + agents .-> H
+  HW -. anchors + skills + agents .-> SDK
+  HW -. anchors + skills + agents .-> APP
+  AU -- "name-linked seed" --> SS
+```
+
+The audit → maintenance loop:
+
+```mermaid
+flowchart LR
+  T(("/audit-cycle")) --> R[audit-runner]
+  R --> A[("audits/&lt;repo&gt;-audits/<br/>topic-audit-date.md")]
+  A --> P[maintenance-planner]
+  P --> C[("session-starters/<br/>repo-topic-date/<br/>0-overview + A,B,C,…")]
+  C --> I[maintenance-implementer]
+  I --> COMMIT(("commits<br/>+ feedback.md"))
+  P -.->|"Decision points<br/>non-empty"| BLOCK[/"surface to human"/]
+  I -.->|"blocker"| BLOCK
+  COORD[audit-cycle-coordinator] -. drives .-> R
+  COORD -. drives .-> P
+  COORD -. drives .-> I
+```
+
+## Tool catalog — when, why, how
+
+Every entry below is a *vendor-neutral* artifact. Coding-agent adapters
+make it discoverable in your tool of choice (see "Agent adapters"
+later).
+
+### Skills — user-invokable workflows
+
+Invoke as `/<skill-name>` in a Claude Code session, or read the
+linked `SKILL.md` directly in any other agent.
+
+| Skill | When to reach for it | Why it exists |
+|---|---|---|
+| [`heddle-orient`](skills/heddle-orient/SKILL.md) | Session start, or after compaction, when working in any `getheddle/*` repo. | Cheap context entry — one screen instead of re-reading every anchor. |
+| [`heddle-invariants`](skills/heddle-invariants/SKILL.md) | Mid-session, before a structural change you weren't already planning. | Pulls the non-negotiable rules into context without a full anchor re-read. |
+| [`heddle-contract-sync`](skills/heddle-contract-sync/SKILL.md) | A change touched `heddle.core.messages`, `schemas/v1/*`, or a vendored SDK model. | Verifies/refreshes the schema sync from `heddle` (upstream) to `heddle-sdk` (downstream). |
+| [`heddle-preflight`](skills/heddle-preflight/SKILL.md) | Before every commit on a structural change. | Single repo-aware command runs lint, types, tests, docs build, CHANGELOG check. |
+| [`heddle-new-worker`](skills/heddle-new-worker/SKILL.md) | Adding a new LLM or processor worker. | Walks the scaffolding CLI + I/O contract rules. |
+| [`cross-repo-pr`](skills/cross-repo-pr/SKILL.md) | A change spans `heddle` + `heddle-sdk` and needs paired PRs. | Encodes merge order (upstream → downstream) and cross-linked PR bodies. |
+| [`warp-adr`](skills/warp-adr/SKILL.md) | Recording a design decision in `warp-design/decisions/`. | Format guard — NNNN-kebab-title.md with Status/Context/Decision/Consequences. |
+| [`audit-cycle`](skills/audit-cycle/SKILL.md) | Auditing a repo, fixing audit findings, or scheduling periodic maintenance. | Routes the request to the right audit/maintenance agent and enforces the name-link between audits and cycles. |
+
+### Subagents — spawn for isolated, focused jobs
+
+Spawn via the `Agent` tool (Claude Code) or whatever delegation
+mechanism your agent supports. Each definition is a single `.md` under
+[`agents/`](agents/INDEX.md).
+
+| Subagent | When to spawn it | Why prefer it over the main thread |
+|---|---|---|
+| [`heddle-architect`](agents/heddle-architect.md) | **Before** writing non-trivial code (new worker, new orchestrator, schema change, cross-repo feature). | Read-only design pass in isolated context — returns a plan, not code. Keeps the top thread uncluttered. |
+| [`heddle-invariant-guard`](agents/heddle-invariant-guard.md) | A staged diff touches workers, router, orchestrator, bus, or council code. | Enforces the permanent invariant red lines without your main thread having to re-read them. |
+| [`heddle-contract-reviewer`](agents/heddle-contract-reviewer.md) | A diff touches `core/messages.py`, `schemas/v1/*`, .NET models, Swift models, or NATS subject names. | Cross-repo wire-protocol coherence — the seam most likely to drift silently. |
+| [`mkdocs-doc-reviewer`](agents/mkdocs-doc-reviewer.md) | A diff touches `docs/`, `mkdocs.yml`, or included Markdown. | Catches nav drift, broken refs, stale code blocks. |
+| [`pyproject-deps-reviewer`](agents/pyproject-deps-reviewer.md) | A diff touches `pyproject.toml` or `uv.lock`. | License compatibility (MPL-2.0), missing extras, version skew. |
+| [`audit-runner`](agents/audit-runner.md) | "Audit `<repo>` for `<type>`." Type catalog in [`docs/AUDITS.md`](docs/AUDITS.md). | Produces the durable audit artifact that seeds a maintenance cycle. Stateless — scheduleable. |
+| [`maintenance-planner`](agents/maintenance-planner.md) *(stub)* | A completed audit needs to become an executable maintenance cycle. | Converts findings into lettered session briefs; refuses to plan items in `Decision points`. |
+| [`maintenance-implementer`](agents/maintenance-implementer.md) *(stub)* | One lettered session brief in a cycle is ready to execute. | Surgical, single-letter execution with paired feedback — never grabs more scope than the brief. |
+| [`audit-cycle-coordinator`](agents/audit-cycle-coordinator.md) *(stub)* | Drive the whole audit → plan → implement loop, especially when unattended. | Composition over inheritance — one agent that orchestrates the other three. Scheduleable via `/schedule`, `/loop`, or `CronCreate`. |
+
+### Anchors — read-deeper docs (not user-invokable)
+
+Loaded on demand by skills/subagents, or read directly when you need
+the canonical answer:
+
+| Anchor | Use it when |
+|---|---|
+| [`anchors/WORKSPACE.md`](anchors/WORKSPACE.md) | You need the workspace-detection rules, sibling-layout convention, or `bin/workspace` quick reference. |
+| [`anchors/ECOSYSTEM.md`](anchors/ECOSYSTEM.md) | You forgot which repo owns what. |
+| [`anchors/PHILOSOPHY.md`](anchors/PHILOSOPHY.md) | You're about to design something and want to check the trade-offs aren't being inverted. |
+| [`anchors/INVARIANTS.md`](anchors/INVARIANTS.md) | You're about to break or skirt one of the non-negotiables. |
+| [`anchors/CONTRACT_MAP.md`](anchors/CONTRACT_MAP.md) | A schema/wire-protocol change is in flight and you need the propagation order. |
+
+### Convention references
+
+| Doc | What it answers |
+|---|---|
+| [`docs/AUDITS.md`](docs/AUDITS.md) | What audit types exist, what each one inspects, what the audit artifact looks like. |
+| [`docs/AUDIENCE_PERSONAS.md`](docs/AUDIENCE_PERSONAS.md) | Which personas a `docs-persona` audit can adopt; how to add a new one. |
+| [`docs/MACHINE_PROFILE.md`](docs/MACHINE_PROFILE.md) | How `(local-only)/machine.yaml` declares per-machine capabilities so skills degrade gracefully. |
+| [`docs/AGENT_ADAPTERS.md`](docs/AGENT_ADAPTERS.md) | Which discovery directory each coding agent uses, and what the installer writes. |
+| [`docs/WORKSPACE_SYNC_DESIGN.md`](docs/WORKSPACE_SYNC_DESIGN.md) | The umbrella-repo design rationale, lifecycle commands, and conflict-resolution model. |
+
+
 
 | Path | Contents |
 |---|---|
@@ -60,6 +184,9 @@ machines, and kept in sync across team members:
 | `src/heddle_workspace/` | Python package backing the CLI. |
 | `docs/WORKSPACE_SYNC_DESIGN.md` | Full design spec for the umbrella-repo lifecycle. |
 | `docs/AGENT_ADAPTERS.md` | Source-backed map of coding-agent discovery paths installed by the adapter command. |
+| `docs/AUDITS.md` | Audit-type catalog and document shape (used by `audit-runner` / `/audit-cycle`). |
+| `docs/AUDIENCE_PERSONAS.md` | Default persona list for `docs-persona` audits (Operator, Worker Author, Framework Contributor, Cluster Operator, Evaluator). |
+| `docs/MACHINE_PROFILE.md` | Schema for the per-machine `(local-only)/machine.yaml` profile and capability keys. |
 
 ## The `workspace` CLI
 
