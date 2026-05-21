@@ -31,6 +31,13 @@ format model.
 
 ### Added
 
+- **`anchors/AGENTIC-DEV.md`** — the clean-slate principle (development
+  under bounded vigilance with AI assistance) lands at its canonical home
+  as a PHILOSOPHY/advisory-weight anchor. Names the durable-consumer
+  inversion trigger, the N≥2-sites foreclosure test, and the Guardrail-1
+  written-justification discipline. Worked example: the wire-envelope
+  base/specialization redesign.
+
 - **Agent adapters for non-Claude discovery** — canonical skills and
   subagent definitions now remain in `heddle-workspace/skills/` and
   `heddle-workspace/agents/`, with thin adapters installed by
