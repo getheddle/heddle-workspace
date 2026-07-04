@@ -47,6 +47,22 @@ def test_sync_projection_populates_all_three_targets(tmp_path: Path) -> None:
     assert (root / "references" / "UPSTREAM").exists()
 
 
+def test_sync_projection_records_global_path_home_relative(tmp_path: Path, monkeypatch) -> None:
+    """A committed manifest must never bake in a machine-specific absolute
+    home path (e.g. `/Users/<name>/...`) — it's meaningless and leaks
+    local FS layout on every other checkout."""
+    monkeypatch.setattr(Path, "home", lambda: tmp_path)
+    source = _make_fixture_source(tmp_path)
+    root = tmp_path / "toolkit"
+    global_dir = tmp_path / ".claude" / "skills" / "hooman-assistant"
+
+    data = references.sync_projection(
+        root, source, tag="v-test", global_skill_dir=global_dir
+    )
+
+    assert data["targets"]["global_skill"]["path"] == "~/.claude/skills/hooman-assistant"
+
+
 def test_sync_projection_skip_global(tmp_path: Path) -> None:
     source = _make_fixture_source(tmp_path)
     root = tmp_path / "toolkit"

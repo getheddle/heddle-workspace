@@ -27,7 +27,7 @@ targets:
       references/contracts.md: fbdf5cf1a31d77dd36ed356dd5d21c4b88345ddd61c85eb9025a4c49a84bf07c
       references/workspace.md: 7cc9b2d1e55c151518a4794ad43d77792d4fc1c49aaeab876a71795c461c7e7c
   global_skill:
-    path: /Users/hm/.claude/skills/hooman-assistant
+    path: ~/.claude/skills/hooman-assistant
     files:
       SKILL.md: 22cb3fd68e310d45accd1f397885d4a588d6e456b1ada592055127aea6cf30c7
       references/contracts.md: fbdf5cf1a31d77dd36ed356dd5d21c4b88345ddd61c85eb9025a4c49a84bf07c

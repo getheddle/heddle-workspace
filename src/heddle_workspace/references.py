@@ -58,6 +58,17 @@ def _default_upstream() -> Path | None:
     return Path(value) if value else None
 
 
+def _display_path(path: Path) -> str:
+    """Render `path` `~`-relative when under the home dir, for a
+    manifest that's committed to a shared repo — an absolute
+    `/Users/<name>/...` path would be machine-specific and wrong on
+    every other checkout."""
+    try:
+        return f"~/{path.relative_to(Path.home())}"
+    except ValueError:
+        return str(path)
+
+
 def _sha256(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as handle:
@@ -183,10 +194,10 @@ def sync_projection(
     }
 
     if sync_global:
-        gdir = global_skill_dir or default_global_skill_dir()
+        gdir = (global_skill_dir or default_global_skill_dir()).expanduser()
         _mirror_tree(upstream_skill, gdir, skip_names=SKIP_NAMES)
         targets["global_skill"] = {
-            "path": str(gdir),
+            "path": _display_path(gdir),
             "files": _relative_hashes(gdir, skip_names=SKIP_NAMES),
         }
 
@@ -262,7 +273,11 @@ def check(root: Path, *, global_skill_dir: Path | None = None) -> list[str]:
     dirs: dict[str, tuple[Path, set[str], set[str]]] = {
         "references": (references_dir, REFERENCES_SKIP_NAMES, {"UPSTREAM"}),
         "skill": (root / "skills" / "hooman-assistant", SKIP_NAMES, set()),
-        "global_skill": (global_skill_dir or default_global_skill_dir(), SKIP_NAMES, set()),
+        "global_skill": (
+            (global_skill_dir or default_global_skill_dir()).expanduser(),
+            SKIP_NAMES,
+            set(),
+        ),
     }
 
     for name, (dir_path, skip_names, preserve) in dirs.items():
