@@ -8,7 +8,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
-from heddle_workspace import git, manifest
+from heddle_workspace import agent_adapters, git, manifest, references
 from heddle_workspace.manifest import LOCAL_ONLY_DIR
 
 PUBLIC_ACK_FILENAME = ".umbrella-public-ok"
@@ -46,6 +46,14 @@ def run(args: argparse.Namespace) -> int:
     vis_problem = _check_umbrella_visibility(root, m.umbrella_remote)
     if vis_problem:
         problems.append(vis_problem)
+
+    # Hooman Method references-pin drift, across all three sync targets
+    # (references/, skills/hooman-assistant/, and the D7 global copy).
+    ref_problems = references.check(agent_adapters.toolkit_root())
+    if ref_problems:
+        problems.extend(f"  references: {p}" for p in ref_problems)
+    else:
+        print("  ok   references/ (Hooman Method projection)")
 
     print()
     if problems:
