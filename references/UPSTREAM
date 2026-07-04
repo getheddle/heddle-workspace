@@ -1,0 +1,34 @@
+# references/UPSTREAM — Hooman Method projection manifest.
+# Read-only projection (DT3): never hand-edit. Regenerate via:
+#   workspace references update --upstream <path-to-hooman-method-clone>
+
+source:
+  repository: https://github.com/hooman/hooman-method
+  tag: v0.8.1
+  refreshed: '2026-07-03'
+refresh_instruction: uv run workspace references update --upstream <path-to-local-hooman-method-clone>
+hash_algorithm: sha256
+targets:
+  references:
+    path: references
+    files:
+      LICENSE: 9ba9550ad48438d0836ddab3da480b3b69ffa0aac7b7878b5a0039e7ab429411
+      README.md: 84f7a5c8bbacf4b2f07aa6011f42b6b0e8f00bc89b16b1b02213d0d64728b146
+      coding-conventions/swift/swift-conventions.md: dea9ad92e8fef547670a9c2690bfd13fff2a5075e0a632c6b2078c8f1173cdde
+      design-stance/swift/design-stance-swift.md: e1ef4667a479fd1d8b650912425a5ebff8e4318704cb9e267495305c80c556ca
+      design-stance/universal/design-stance-universal.md: c17026dedb429570ebf09165852573238c7adf72784dcadbc5e80b97ca0c95bb
+      hooman-contract.md: e5ab7870d940a8a36c82c9cce99eb53327c0578d1ac63b59808cd95aea37c664
+      hooman-notes.md: 2c67c136ccf1ee289aed67b5c54d1f8834a446f0708eb2570bf62eb652af66b1
+      tools/check-docs.py: 50bde300f757f2fb6bfc3f6f5c28831d2212259a93f5f5a1b8d0eed95124d7a1
+  skill:
+    path: skills/hooman-assistant
+    files:
+      SKILL.md: 22cb3fd68e310d45accd1f397885d4a588d6e456b1ada592055127aea6cf30c7
+      references/contracts.md: fbdf5cf1a31d77dd36ed356dd5d21c4b88345ddd61c85eb9025a4c49a84bf07c
+      references/workspace.md: 7cc9b2d1e55c151518a4794ad43d77792d4fc1c49aaeab876a71795c461c7e7c
+  global_skill:
+    path: /Users/hm/.claude/skills/hooman-assistant
+    files:
+      SKILL.md: 22cb3fd68e310d45accd1f397885d4a588d6e456b1ada592055127aea6cf30c7
+      references/contracts.md: fbdf5cf1a31d77dd36ed356dd5d21c4b88345ddd61c85eb9025a4c49a84bf07c
+      references/workspace.md: 7cc9b2d1e55c151518a4794ad43d77792d4fc1c49aaeab876a71795c461c7e7c
