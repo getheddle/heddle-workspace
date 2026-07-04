@@ -27,6 +27,7 @@ def test_install_links_claude_and_codex_adapters(tmp_path: Path) -> None:
     assert (workspace / ".devin" / "skills" / "heddle-orient").is_symlink()
     assert (workspace / ".qwen" / "skills" / "heddle-orient").is_symlink()
     assert (workspace / ".windsurf" / "skills" / "heddle-orient").is_symlink()
+    assert (workspace / "references").is_symlink()
     assert (workspace / "GEMINI.md").is_symlink()
     assert (workspace / "QWEN.md").is_symlink()
     assert (workspace / ".rules").is_symlink()
@@ -43,6 +44,7 @@ def test_install_links_claude_and_codex_adapters(tmp_path: Path) -> None:
     assert (
         codex_home / "skills" / "heddle" / "heddle-preflight"
     ).resolve() == (toolkit / "skills" / "heddle-preflight").resolve()
+    assert (workspace / "references").resolve() == (toolkit / "references").resolve()
     assert (workspace / "GEMINI.md").resolve() == (workspace / "AGENTS.md").resolve()
     assert (
         "Use `AGENTS.md` as the canonical workspace instructions"

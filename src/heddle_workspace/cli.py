@@ -31,6 +31,9 @@ from heddle_workspace import (
     overlay_cmd as cmd_overlay,
 )
 from heddle_workspace import (
+    references as cmd_references,
+)
+from heddle_workspace import (
     rm as cmd_rm,
 )
 from heddle_workspace import (
@@ -212,6 +215,51 @@ def _build_parser() -> argparse.ArgumentParser:
     ars.set_defaults(func=cmd_audit_repro.run)
 
     s = sub.add_parser(
+        "references",
+        help="copy-sync the Hooman Method global-tier docs at a pinned tag",
+    )
+    rsub = s.add_subparsers(dest="references_command", required=True)
+    ru = rsub.add_parser(
+        "update",
+        help="copy-sync references/, skills/hooman-assistant/, and the "
+        "global copy from an upstream hooman-method checkout",
+    )
+    ru.add_argument(
+        "--upstream",
+        type=Path,
+        help=f"path to a local hooman-method checkout (default: ${cmd_references.UPSTREAM_REPO_ENV})",
+    )
+    ru.add_argument(
+        "--tag",
+        default=cmd_references.DEFAULT_TAG,
+        help=f"tag to pin (default: {cmd_references.DEFAULT_TAG})",
+    )
+    ru.add_argument(
+        "--global-skills-dir",
+        type=Path,
+        help="override the D7 global skill copy location "
+        f"(default: ${cmd_references.GLOBAL_SKILL_DIR_ENV} or ~/.claude/skills/hooman-assistant)",
+    )
+    ru.add_argument(
+        "--no-global",
+        action="store_true",
+        help="skip refreshing the global skill copy on this machine",
+    )
+    ru.set_defaults(func=cmd_references.run)
+
+    rc = rsub.add_parser(
+        "check",
+        help="verify references/, skills/hooman-assistant/, and the global "
+        "copy match the pinned manifest",
+    )
+    rc.add_argument(
+        "--global-skills-dir",
+        type=Path,
+        help="override the D7 global skill copy location for this check",
+    )
+    rc.set_defaults(func=cmd_references.run)
+
+    s = sub.add_parser(
         "agent-adapters",
         help="install coding-agent discovery adapters for toolkit skills",
     )
@@ -289,6 +337,13 @@ def _build_parser() -> argparse.ArgumentParser:
         action=argparse.BooleanOptionalAction,
         default=True,
         help="install QWEN.md and .qwen/skills adapters",
+    )
+    ai.add_argument(
+        "--references",
+        dest="references",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="install the references/ projection as a whole-directory symlink",
     )
     ai.add_argument(
         "--windsurf",

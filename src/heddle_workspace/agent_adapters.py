@@ -45,6 +45,7 @@ def install(
     install_devin: bool = True,
     install_gemini: bool = True,
     install_qwen: bool = True,
+    install_references: bool = True,
     install_windsurf: bool = True,
     install_zed: bool = True,
     codex_home: Path | None = None,
@@ -76,6 +77,8 @@ def install(
         results.extend(_install_gemini(root))
     if install_qwen:
         results.extend(_install_qwen(root, src_root))
+    if install_references:
+        results.extend(_install_references(root, src_root))
     if install_windsurf:
         results.extend(_install_windsurf(root, src_root))
     if install_zed:
@@ -180,6 +183,17 @@ def _install_qwen(workspace_root: Path, src_root: Path) -> list[LinkResult]:
     return results
 
 
+def _install_references(workspace_root: Path, src_root: Path) -> list[LinkResult]:
+    """Symlink the whole `references/` projection as one unit.
+
+    Unlike skills/agents (installed per-item into tool-specific discovery
+    dirs), `references/` is workspace-level content — one directory
+    symlink at the workspace root, mirroring `_install_gemini`'s
+    single-file pattern.
+    """
+    return [_link(src_root / "references", workspace_root / "references")]
+
+
 def _install_windsurf(workspace_root: Path, src_root: Path) -> list[LinkResult]:
     results: list[LinkResult] = []
     for skill in _skills(src_root):
@@ -279,6 +293,7 @@ def run(args: argparse.Namespace) -> int:
         args.devin,
         args.gemini,
         args.qwen,
+        args.references,
         args.windsurf,
         args.zed,
     ]
@@ -297,6 +312,7 @@ def run(args: argparse.Namespace) -> int:
         install_devin=args.devin,
         install_gemini=args.gemini,
         install_qwen=args.qwen,
+        install_references=args.references,
         install_windsurf=args.windsurf,
         install_zed=args.zed,
         codex_home=args.codex_home,
@@ -323,6 +339,7 @@ def run(args: argparse.Namespace) -> int:
         args.devin,
         args.gemini,
         args.qwen,
+        args.references,
         args.windsurf,
         args.zed,
     ]
