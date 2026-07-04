@@ -4,6 +4,12 @@ This directory is a **Heddle workspace** — a parent directory holding
 the [getheddle/*](https://github.com/getheddle) family repositories
 and one or more consuming applications as flat siblings.
 
+## Governance
+
+Governed by the [Hooman Method](https://github.com/hooman/hooman-method)
+(operating rules: the `hooman-assistant` skill). Pinned projection:
+`references/UPSTREAM`.
+
 ## Shared agent guidance
 
 Cross-repo invariants, philosophy, schema source-of-truth direction,
