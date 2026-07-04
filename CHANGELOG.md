@@ -24,6 +24,55 @@ the next `install.sh` and need no note.
 
 ## [Unreleased]
 
+### Added
+
+- **Hooman Method references projection** — `heddle_workspace.references`
+  (`workspace references update` / `workspace references check`)
+  copy-syncs a pinned tag of the `hooman-method` global-tier repo into
+  three targets from one manifest: `references/` (the method's general
+  docs — contract, notes, design stances, coding conventions),
+  `skills/hooman-assistant/` (the assistant skill, fanned out to every
+  coding agent via the existing `agent-adapters install` symlink path),
+  and the optional global `~/.claude/skills/hooman-assistant/` copy
+  (used outside Heddle-family workspaces). The pinned tag is resolved
+  via `git archive`, not the upstream checkout's current working tree,
+  so a local clone that has moved past its own latest tag still yields
+  the exact tagged content. `references/UPSTREAM` records the source
+  repository, pinned tag, refresh date, and a sha256 per file across
+  all three targets — the single source `workspace doctor`'s new drift
+  check reads. Currently pinned to `v0.8.1`.
+  - `agent-adapters install` gains a `references` kind: unlike
+    `skills/`/`agents/` (installed per-item), `references/` installs as
+    one whole-directory symlink from `heddle-workspace/references/` to
+    the consuming workspace root, toggled with `--references`/
+    `--no-references`.
+  - `workspace doctor` gains a references-pin drift check across all
+    three sync targets; the global copy is skipped (not a failure)
+    when absent on a given machine, since D7 keeps it per-machine
+    optional.
+  - Root `AGENTS.md` and `templates/workspace-init/AGENTS.md` gain a
+    one-line Governance pointer naming the Hooman Method and
+    `references/UPSTREAM`. `workspace init`/`scaffold` do **not** write
+    a `references/UPSTREAM` stub — the existing `agent_adapters._link()`
+    never overwrites a non-symlink destination, so a stub would
+    permanently block the real symlink from ever landing. The AGENTS.md
+    pointer alone satisfies the recognition-marker requirement until
+    `references/` is installed for real.
+  - Tests: `tests/test_references.py` (update/check round-trip
+    including the pinned-tag-vs-working-tree case, drift detection per
+    target, missing-manifest and absent-global-copy handling);
+    `tests/test_doctor.py` (new file: clean pass and drift-flagged
+    pass); `tests/test_agent_adapters.py` extended for the new
+    `references` symlink.
+  - **Migration:** existing consuming workspaces don't get the new
+    `AGENTS.md` Governance line automatically (`init`/`install.sh`
+    write it only if `AGENTS.md` is absent) — add the line by hand, or
+    delete the root `AGENTS.md` and re-run
+    `./heddle-workspace/install.sh --workspace .`. The `references/`
+    symlink itself needs no migration note: it's new, so
+    `agent-adapters install --references` creates it fresh on the next
+    run.
+
 ### Changed
 
 - Formalized the **Middleware Lane** pattern in `anchors/CONTRACT_MAP.md` and added it as the 9th Red Line in `anchors/INVARIANTS.md`. This change centralizes the policy for underscore-prefixed envelope keys and provides a cross-reference to the framework invariant in the `heddle` repository.
