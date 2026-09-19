@@ -96,7 +96,9 @@ in `docs/AGENT_ADAPTERS.md`. Install adapters from a workspace root:
 ./heddle-workspace/bin/install-agent-adapters --workspace .
 ```
 
-Do not copy skill or subagent text into adapter directories. If an agent
+Do not copy skill or subagent text into adapter directories, and do not
+keep project rules only in an agent's private memory, hooks, or settings
+(see `docs/AGENT_ADAPTERS.md`, *What an adapter may hold*). If an agent
 does not support discovery, start from this `AGENTS.md`, invoke
 `/heddle-orient` by opening `skills/heddle-orient/SKILL.md`, then follow
 the pointers in `skills/INDEX.md` and `agents/INDEX.md`.

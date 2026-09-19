@@ -18,6 +18,26 @@ updates existing symlinks that point somewhere else, and skips existing
 real files or directories so repo-local agent configuration is not
 overwritten.
 
+## What an adapter may hold
+
+An adapter is discovery plumbing plus agent-specific settings — nothing
+else. Project discipline and project facts (conventions, checks that must
+run, decisions, findings) live in shared, committed, agent-neutral places:
+`AGENTS.md`, `anchors/`, `roadmap/`, `session-starters/`, repo docs, CI.
+
+- **Private memory, hooks, settings, permissions** (`.claude/settings*.json`,
+  `.codex/`, agent memory stores) may hold only what is specific to running
+  that agent. A project rule must also exist in a shared place; a
+  per-agent copy may at most enforce or mirror it.
+- **A check the project relies on** belongs in CI or a repo script every
+  agent inherits (and in `/heddle-preflight`); a hook may only call it.
+  Hooks must not hardcode absolute paths to any clone.
+- **Adapter files stay pointers.** A per-agent instruction file
+  (`GEMINI.md`, `QWEN.md`, `.rules`, `CLAUDE.md`, …) is a symlink to
+  `AGENTS.md` or a short pointer plus agent-specific notes, never a second
+  copy of the project rules. The installer skips existing real files, so a
+  divergent real file must be reconciled by hand, not re-installed over.
+
 ## Installed Adapters
 
 | Agent / format | Installed path | Purpose | Repo-level discovery |
