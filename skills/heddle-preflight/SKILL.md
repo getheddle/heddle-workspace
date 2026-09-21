@@ -47,6 +47,12 @@ uv run ruff format --check src/ tests/
 # Type-check (strict)
 uv run pyright src/
 
+# Exported schemas in sync with the Pydantic models (CI runs this)
+uv run python tools/export_schemas.py --check
+
+# Envelope convention: underscore-prefix middleware lane (CI runs this)
+uv run python tools/check_envelope_convention.py
+
 # Unit tests (no infrastructure required)
 uv run pytest tests/ -v -m "not integration and not deepeval"
 
@@ -82,6 +88,9 @@ swift build --package-path swift
 swift test --package-path swift
 swift build --package-path swift-nats
 swift build --package-path examples/swift/echo-worker
+
+# JVM (needs Java 17+; if unavailable, skip and say so in the report)
+./jvm/gradlew -p jvm test
 
 # Docs build
 uvx --from mkdocs --with mkdocs-material mkdocs build --strict

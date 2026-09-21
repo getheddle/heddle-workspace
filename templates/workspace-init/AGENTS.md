@@ -24,6 +24,24 @@ See `heddle-workspace/docs/AGENT_ADAPTERS.md` for the full adapter map.
 If you are an AI agent, your first step is to invoke
 `/heddle-orient`.
 
+## Agents don't own the work
+
+Several agents (and the human) work in this workspace; none owns it.
+Keep project knowledge where every agent can find it:
+
+- Anything about *how the work is done or what the project is* —
+  conventions, discipline, decisions, findings, checks that must run —
+  lives in shared, committed, agent-neutral places: this file,
+  `roadmap/`, `session-starters/`, `heddle-workspace/`, repo docs, CI.
+- Your private memory, hooks, settings, and permissions may hold only
+  what is specific to running *you* (tool config, personal quirks) —
+  never project discipline or project facts. An agent that can't see it
+  can't follow it.
+- A check the project relies on belongs in CI or a repo script every
+  agent inherits; a per-agent hook may at most call that shared command.
+- Per-agent files (`GEMINI.md`, `.cursor/`, `.codex/`, …) are adapters:
+  a pointer or symlink to canonical files, not a second copy of the rules.
+
 Install or refresh local agent adapters with:
 
 ```bash

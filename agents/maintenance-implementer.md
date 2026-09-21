@@ -30,8 +30,10 @@ Execute exactly one lettered session brief from a maintenance cycle.
 - Commits on a feature branch in the target sibling repo (one branch
   per cycle is the default; one per letter is also acceptable for
   large surgeries — the brief says which).
-- Paired `<letter>-<theme>-feedback.md` next to the brief, per the
-  sprint-feedback protocol (see the `sprint-feedback` skill).
+- Paired `<letter>-<theme>-feedback.md` next to the brief: the C-M
+  contract skeleton (`hooman-assistant` `contracts.md`) plus optional
+  Executor notes, per *Feedback files* in the workspace's
+  `session-starters/README.md`.
 - On blocker: do not force a fix. Stop, write the blocker into the
   feedback file under a `## Blocked` section, and return.
 

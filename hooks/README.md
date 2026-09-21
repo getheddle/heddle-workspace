@@ -51,6 +51,15 @@ patterns in the hook commands.
 If you find a hook noisy in practice, change `PostToolUse` to
 `SessionEnd` for the ruff hook so it only runs at session boundaries.
 
+## Rules for hooks
+
+- Hooks are Claude-only conveniences. A check a hook mirrors must also
+  exist where every agent sees it — CI, `/heddle-preflight`, or the repo's
+  `AGENTS.md` — and the hook only calls it.
+- Never hardcode an absolute path to a clone (a hook that `cd`s into a
+  different checkout silently checks the wrong tree). Use the tool's
+  project-directory variable or a repo-relative path.
+
 ## What this template is NOT
 
 - Not a substitute for `/heddle-preflight`. Hooks are fast feedback;
