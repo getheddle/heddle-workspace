@@ -26,6 +26,14 @@ the next `install.sh` and need no note.
 
 ### Added
 
+- **`workspace doc-check` M3: registered claims.** A repo's `doc-claims.yaml`
+  lists exact written claims and their source: a regex in a file must equal a
+  `value`, a `toml` key, a `json_count`, a `line_count`, or a repo's
+  `latest_tag` (`v<major>.<minor>.<patch>`, read with `git ls-remote`). Files
+  can be repo-qualified to read another checked-out repo; a source in a repo
+  that isn't checked out counts as unchecked. A pattern that stops matching
+  fails, so a claim can't rot silently.
+
 - **`workspace doc-check`** — mechanical checks on written claims across the
   getheddle repos, the CI layer of repo dreaming (Heddle-Platform
   `roadmap/repo-dreaming.md`). **M1:** a path that starts with a repo name
