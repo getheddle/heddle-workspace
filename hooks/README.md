@@ -15,7 +15,7 @@ Two hooks tuned to a Heddle workspace:
 | Hook | When it fires | What it does |
 |---|---|---|
 | `PostToolUse` on Edit/Write/MultiEdit | After a Python file under any `heddle/src/` or `heddle/tests/` tree is edited | Runs `uv run ruff check --fix --quiet` on the file. Output is truncated to 20 lines. |
-| `PreToolUse` on Edit/Write/MultiEdit | Before a file under `heddle/schemas/v1/`, `heddle-sdk/.../Models/` is edited | Emits a stderr reminder to run `/heddle-contract-sync` and consider `/cross-repo-pr`. Non-blocking. |
+| `PreToolUse` on Edit/Write/MultiEdit | Before a wire-protocol file is edited: `heddle/schemas/v1/`, heddle's `core/envelope.py`, `messages.py` or `wire_json.py`, or an SDK `Wire.*` / `Models.*` codec (.NET, Swift, JVM) | Emits a stderr reminder to run `/heddle-contract-sync` and consider `/cross-repo-pr`. Non-blocking. |
 
 Both hooks exit 0 on the non-matching path so unrelated edits aren't
 affected.

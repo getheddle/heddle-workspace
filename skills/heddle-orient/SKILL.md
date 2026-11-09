@@ -33,7 +33,7 @@ state which repo you're in.
 heddle (Python)               source of truth: wire protocol, schemas, subjects
   │  exports schemas/v1/*.schema.json
   ▼
-heddle-sdk (.NET + Swift)     vendored schemas → language SDKs for processor workers
+heddle-sdk (.NET/Swift/JVM)   vendored schemas + fixtures → language SDKs for processor workers
   │  Swift package consumed by
   ▼
 warp-design (markdown only)   pre-implementation vision + ADRs
@@ -47,11 +47,14 @@ getheddle.github.io           org-level overview site (planned → getheddle.dev
 
 ## Who owns what
 
-- **heddle**: TaskMessage / TaskResult / OrchestratorGoal, JSON Schemas,
+- **heddle**: the `WireEnvelope` frame and its bodies (TaskMessage /
+  TaskResult / OrchestratorGoal), JSON Schemas and conformance fixtures,
   subject names, queue groups, router rules, Workshop UI, CLI, six
   shipped workers.
-- **heddle-sdk**: .NET and Swift contract models (derived from heddle
-  schemas), transport-agnostic worker bases, NATS adapters per language.
+- **heddle-sdk**: .NET, Swift and JVM wire codecs and models (held to
+  heddle's vendored schemas and fixtures), transport-agnostic worker
+  bases, NATS adapters per language. Not yet published to package
+  registries.
   Does **not** reimplement LLM workers, knowledge silos, Workshop, or
   orchestration.
 - **warp-design**: ADRs, evolution log, vision docs. No code.

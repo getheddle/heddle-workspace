@@ -61,8 +61,9 @@ job. Defined in [`agents/INDEX.md`](agents/INDEX.md):
   (stateless workers, deterministic router, typed messages, contrib→core
   direction). Use before commit on structural changes.
 - `heddle-contract-reviewer` — cross-repo wire-protocol coherence. Use
-  when changes touch `heddle.core.messages`, `schemas/v1/*`, .NET models,
-  Swift models, or subject conventions.
+  when changes touch `heddle.core.envelope`, `heddle.core.messages`,
+  `schemas/v1/*` (schemas or fixtures), the .NET, Swift or JVM codecs, or
+  subject conventions.
 - `audit-runner` — performs a typed workspace audit (`security`,
   `deps`, `schema`, `contrib`, `docs-editorial`, `docs-technical`,
   `docs-persona`, `perf`, `invariants`, `data`) and writes the report
