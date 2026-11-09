@@ -297,21 +297,32 @@ def run_checks(root: Path, target: str | None = None) -> Report:
     return report
 
 
-def _format(finding: Finding, style: str, level: str) -> str:
+def _format(finding: Finding, style: str, level: str, location: str) -> str:
     if style == "github":
         return (
-            f"::{level} file={finding.path},line={finding.line},"
+            f"::{level} file={location},line={finding.line},"
             f"title={finding.check}::{finding.repo}: {finding.message}"
         )
     return f"{finding.repo}/{finding.path}:{finding.line}: {finding.check} {finding.message}"
 
 
+def _location(finding: Finding, repos: dict[str, Path], root: Path) -> str:
+    """The finding's path relative to ``root``, as workflow annotations expect."""
+    path = repos[finding.repo] / finding.path
+    try:
+        return path.relative_to(root).as_posix()
+    except ValueError:
+        return finding.path
+
+
 def run(args: argparse.Namespace) -> int:
-    report = run_checks(Path(args.cwd).resolve(), args.repo)
-    for finding in report.failures:
-        print(_format(finding, args.format, "error"))
-    for finding in report.warnings:
-        print(_format(finding, args.format, "warning"))
+    root = Path(args.cwd).resolve()
+    report = run_checks(root, args.repo)
+    repos = find_repos(root)
+    for level, findings in (("error", report.failures), ("warning", report.warnings)):
+        for finding in findings:
+            location = _location(finding, repos, root)
+            print(_format(finding, args.format, level, location))
     print(
         f"doc-check: {report.checked} checked, {len(report.failures)} failed, "
         f"{len(report.warnings)} warnings, {report.unchecked} unchecked "

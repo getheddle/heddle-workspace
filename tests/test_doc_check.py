@@ -200,7 +200,7 @@ def test_cli_exit_codes_and_github_format(tmp_path: Path, capsys) -> None:
     _repo(tmp_path, "heddle-workspace", {"README.md": "[x](MISSING.md)\n"})
     assert main(["-C", str(tmp_path), "doc-check", "--format", "github"]) == 1
     out = capsys.readouterr().out
-    assert "::error file=README.md,line=1,title=M4::" in out
+    assert "::error file=heddle-workspace/README.md,line=1,title=M4::" in out
 
     (tmp_path / "heddle-workspace" / "MISSING.md").write_text("x\n")
     subprocess.run(
