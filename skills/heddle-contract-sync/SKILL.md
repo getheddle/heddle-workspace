@@ -9,7 +9,7 @@ The wire-protocol source of truth is the `heddle` repo: the
 `WireEnvelope` frame (`heddle.core.envelope`), the body models
 (`heddle.core.messages`), and the strict text decoder
 (`heddle.core.wire_json`, the two I-JSON rules). Schemas and the
-conformance fixtures in `schemas/v1/fixtures/` flow outward via
+conformance fixtures in `heddle/schemas/v1/fixtures/` flow outward via
 `heddle-sdk/tools/sync_schemas.py`. Everything else is downstream. The
 schemas are the interchange format; the fixtures are the behavioral
 contract every SDK must pass.
@@ -72,9 +72,9 @@ are written by hand and held to the fixtures by tests:
 
 | SDK | Frame codec | Bodies |
 |---|---|---|
-| .NET | `dotnet/src/Heddle.Sdk/Wire.cs` | `dotnet/src/Heddle.Sdk/Models.cs` |
-| Swift | `swift/Sources/HeddleActor/Wire.swift` | `swift/Sources/HeddleActor/Models.swift` |
-| JVM | `jvm/core/src/main/kotlin/heddle/sdk/Wire.kt` | `jvm/core/src/main/kotlin/heddle/sdk/Models.kt` |
+| .NET | `heddle-sdk/dotnet/src/Heddle.Sdk/Wire.cs` | `heddle-sdk/dotnet/src/Heddle.Sdk/Models.cs` |
+| Swift | `heddle-sdk/swift/Sources/HeddleActor/Wire.swift` | `heddle-sdk/swift/Sources/HeddleActor/Models.swift` |
+| JVM | `heddle-sdk/jvm/core/src/main/kotlin/heddle/sdk/Wire.kt` | `heddle-sdk/jvm/core/src/main/kotlin/heddle/sdk/Models.kt` |
 
 After a sync, run every SDK's tests; each runs all vendored fixtures:
 
@@ -94,10 +94,10 @@ all three unless explicitly documented as language-specific.
 Subject names and queue-group names are not in the JSON Schema files;
 they live in code. If your upstream change touched subjects:
 
-- Update `dotnet/src/Heddle.Sdk/Subjects.cs`.
-- Update `swift/Sources/HeddleActor/Subjects.swift`.
+- Update `heddle-sdk/dotnet/src/Heddle.Sdk/Subjects.cs`.
+- Update `heddle-sdk/swift/Sources/HeddleActor/Subjects.swift`.
 - Update the subject builders in
-  `jvm/core/src/main/kotlin/heddle/sdk/Transport.kt`.
+  `heddle-sdk/jvm/core/src/main/kotlin/heddle/sdk/Transport.kt`.
 - Update `heddle-workspace/anchors/CONTRACT_MAP.md` if it's a new
   subject.
 - Update `heddle/docs/ARCHITECTURE.md` NATS-subjects table.
@@ -119,7 +119,7 @@ If the change adds a *new* subject or field, also confirm:
 
 - `heddle/docs/foreign-actors.md` documents it (heddle side).
 - An example in `heddle-sdk/examples/` exercises it, or there's a test
-  in `dotnet/tests/`, `swift/Tests/` and `jvm/core/src/test/` that does.
+  in `heddle-sdk/dotnet/tests/`, `heddle-sdk/swift/Tests/` and `heddle-sdk/jvm/core/src/test/` that does.
 
 ## Output format
 

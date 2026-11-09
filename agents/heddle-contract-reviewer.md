@@ -38,7 +38,7 @@ reviewer.
     generated from the `WireEnvelope` frame (`heddle.core.envelope`) and
     the body models (`heddle.core.messages`). `heddle-sdk/schemas/v1/*`
     (schemas **and** `fixtures/`) is vendored from upstream via
-    `tools/sync_schemas.py`. The manifest commit/hashes must match.
+    `heddle-sdk/tools/sync_schemas.py`. The manifest commit/hashes must match.
   - **C1b — Wire ≡ source of truth.** A field that exists on the wire
     today (declared in SDK models, injected by middleware like
     `heddle.tracing.otel`, or otherwise serialized into a
@@ -52,7 +52,7 @@ reviewer.
     top-level `_`-prefixed key is not a violation: it is the Middleware
     Lane (heddle Invariant #22).
   - **C1c — Behavioral conformance.** Every SDK must give the runtime's
-    verdict on every fixture in `schemas/v1/fixtures/` (`frame`, `body`,
+    verdict on every fixture in `heddle/schemas/v1/fixtures/` (`frame`, `body`,
     `dispatch`), including the two I-JSON text rules (unique member
     names, finite numbers). A codec change without a passing fixture
     run is a RISK; a fixture the SDK fails is a VIOLATION.
@@ -89,12 +89,12 @@ reviewer.
 | `heddle-sdk/schemas/v1/*.schema.json` | If hand-edited, violation of C1 — should be sync'd from upstream. Confirm `tools/sync_schemas.py --update` was run. |
 | `heddle-sdk/schemas/manifest.json` | Hashes match the vendored files. Upstream commit recorded. |
 | `heddle-sdk/schemas/v1/fixtures/*` | Vendored, never hand-edited (C1). |
-| `dotnet/src/Heddle.Sdk/Wire.cs`, `swift/Sources/HeddleActor/Wire.swift`, `jvm/core/src/main/kotlin/heddle/sdk/Wire.kt` | Frame codec: strict frame, lane carried as opaque JSON, I-JSON text rules, timestamp and integer rules. All three change together (C6). |
-| `dotnet/src/Heddle.Sdk/Models.cs`, `swift/Sources/HeddleActor/Models.swift`, `jvm/core/src/main/kotlin/heddle/sdk/Models.kt` | Bodies match the JSON Schema field names + types; optional fields nullable; tolerant of unknown body keys. A new field lands in all three in the same change set. |
-| `dotnet/src/Heddle.Sdk/Subjects.cs`, `swift/Sources/HeddleActor/Subjects.swift`, `jvm/core/src/main/kotlin/heddle/sdk/Transport.kt` (subject builders) | Byte-identical subject literals to the Python side. All three updated if any is. |
-| `dotnet/src/Heddle.Sdk/` (anywhere) | No `using NATS.Client` outside `Heddle.Sdk.Nats`. No LLM/orchestration reimplementation. Worker base resets between tasks. |
-| `swift/Sources/HeddleActor/` (anywhere) | No `import Nats` outside `swift-nats`. No LLM/orchestration reimplementation. Worker base resets between tasks. |
-| `jvm/core/` (anywhere) | No NATS client import outside `jvm/nats`. No LLM/orchestration reimplementation. Worker base resets between tasks. |
+| `heddle-sdk/dotnet/src/Heddle.Sdk/Wire.cs`, `heddle-sdk/swift/Sources/HeddleActor/Wire.swift`, `heddle-sdk/jvm/core/src/main/kotlin/heddle/sdk/Wire.kt` | Frame codec: strict frame, lane carried as opaque JSON, I-JSON text rules, timestamp and integer rules. All three change together (C6). |
+| `heddle-sdk/dotnet/src/Heddle.Sdk/Models.cs`, `heddle-sdk/swift/Sources/HeddleActor/Models.swift`, `heddle-sdk/jvm/core/src/main/kotlin/heddle/sdk/Models.kt` | Bodies match the JSON Schema field names + types; optional fields nullable; tolerant of unknown body keys. A new field lands in all three in the same change set. |
+| `heddle-sdk/dotnet/src/Heddle.Sdk/Subjects.cs`, `heddle-sdk/swift/Sources/HeddleActor/Subjects.swift`, `heddle-sdk/jvm/core/src/main/kotlin/heddle/sdk/Transport.kt` (subject builders) | Byte-identical subject literals to the Python side. All three updated if any is. |
+| `heddle-sdk/dotnet/src/Heddle.Sdk/` (anywhere) | No `using NATS.Client` outside `Heddle.Sdk.Nats`. No LLM/orchestration reimplementation. Worker base resets between tasks. |
+| `heddle-sdk/swift/Sources/HeddleActor/` (anywhere) | No `import Nats` outside `swift-nats`. No LLM/orchestration reimplementation. Worker base resets between tasks. |
+| `heddle-sdk/jvm/core/` (anywhere) | No NATS client import outside `jvm/nats`. No LLM/orchestration reimplementation. Worker base resets between tasks. |
 | `heddle/docs/foreign-actors.md` | Updated in the same PR as a wire-protocol change. |
 
 ## Review process

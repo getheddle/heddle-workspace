@@ -30,7 +30,7 @@ red lines:
 
 1. **No LLM in the router.** Routing is deterministic, by `worker_type` +
    `model_tier`. Flag any import of an LLM client (Anthropic, OpenAI,
-   Ollama, etc.) in `src/heddle/router/`. Flag any conditional logic
+   Ollama, etc.) in `heddle/src/heddle/router/`. Flag any conditional logic
    that depends on message content.
 
 2. **Workers are stateless.** Every `ProcessorWorker` and `LLMWorker`
@@ -76,8 +76,8 @@ red lines:
 
 ## Architectural direction rules
 
-- **`contrib` → `core` only.** Nothing in `src/heddle/core/` or
-  `src/heddle/worker/` may import from `src/heddle/contrib/*`. Flag any
+- **`contrib` → `core` only.** Nothing in `heddle/src/heddle/core/` or
+  `heddle/src/heddle/worker/` may import from `heddle/src/heddle/contrib/*`. Flag any
   cross-import in the wrong direction.
 - **Tests use `InMemoryBus` by default.** Any test that imports
   `NATSBus` without `@pytest.mark.integration` is a violation.
