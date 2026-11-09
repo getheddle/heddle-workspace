@@ -1,6 +1,6 @@
 ---
 name: cross-repo-pr
-description: Coordinate paired pull requests across `heddle` (upstream source of truth for schemas, subjects, wire protocol) and `heddle-sdk` (vendored copies in .NET + Swift). Use when a change touches `heddle/schemas/v1/*`, `heddle.core.messages`, or NATS subject names AND the downstream SDK needs a corresponding update. Walks through: contract sync, paired branches, paired PR bodies that cross-link, and the merge order that respects upstream → downstream direction.
+description: Coordinate paired pull requests across `heddle` (upstream source of truth for schemas, subjects, wire protocol) and `heddle-sdk` (vendored copies in .NET, Swift and JVM). Use when a change touches `heddle/schemas/v1/*` (schemas or fixtures), `heddle.core.envelope`, `heddle.core.messages`, `heddle.core.wire_json`, or NATS subject names AND the downstream SDK needs a corresponding update. Walks through: contract sync, paired branches, paired PR bodies that cross-link, and the merge order that respects upstream → downstream direction.
 ---
 
 # /cross-repo-pr — coordinate paired heddle ↔ heddle-sdk PRs
@@ -29,9 +29,12 @@ easy to forget:
   `heddle-workspace/anchors/WORKSPACE.md`.)
 - The change touches at least one of:
   - `heddle/schemas/v1/*.schema.json`
-  - `heddle/src/heddle/core/messages.py` (or the subjects helper)
-  - `heddle-sdk/dotnet/src/Heddle.Sdk/Models/`
-  - `heddle-sdk/swift/Sources/HeddleActor/Models/`
+  - `heddle/schemas/v1/fixtures/`
+  - `heddle/src/heddle/core/envelope.py`, `messages.py` or `wire_json.py`
+    (or the subjects helper)
+  - An SDK codec: `Wire.*` or `Models.*` in `heddle-sdk/dotnet/src/Heddle.Sdk/`,
+    `heddle-sdk/swift/Sources/HeddleActor/` or
+    `heddle-sdk/jvm/core/src/main/kotlin/heddle/sdk/`
   - Any `Subjects` helper in either repo.
 
 If only one side is touched and the change is wire-protocol relevant,
@@ -88,8 +91,9 @@ Paired with getheddle/<other-repo>#<NNN>.
 ### Contract artifacts touched
 - `heddle/schemas/v1/<file>.schema.json`
 - `heddle/src/heddle/core/messages.py` (XxxMessage)
-- `heddle-sdk/dotnet/src/Heddle.Sdk/Models/Xxx.cs`
-- `heddle-sdk/swift/Sources/HeddleActor/Models/Xxx.swift`
+- `heddle-sdk/dotnet/src/Heddle.Sdk/Models.cs` (Xxx)
+- `heddle-sdk/swift/Sources/HeddleActor/Models.swift` (Xxx)
+- `heddle-sdk/jvm/core/src/main/kotlin/heddle/sdk/Models.kt` (Xxx)
 
 ### Why
 <1–3 sentences on the change motivation, not the mechanics.>

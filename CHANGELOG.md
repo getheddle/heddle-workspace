@@ -24,6 +24,23 @@ the next `install.sh` and need no note.
 
 ## [Unreleased]
 
+### Changed
+
+- **Wire-protocol skills and agents follow the `WireEnvelope` era and the
+  JVM SDK.** `heddle-contract-reviewer`, `/heddle-contract-sync`,
+  `/cross-repo-pr` and `/heddle-orient` described the pre-2026-11 SDK
+  layout: per-type `Models/` folders that don't exist, .NET and Swift only,
+  and `heddle.core.messages` as the whole source of truth. They now name the
+  frame (`heddle.core.envelope`), the bodies (`messages`), the strict decoder
+  (`wire_json`, the two I-JSON rules), the vendored conformance fixtures, and
+  each SDK's `Wire.*` / `Models.*` files in .NET, Swift and JVM. The contract
+  reviewer adds a behavioral-conformance check (C1c) and notes that the frame
+  schema is strict while body schemas stay open. **Migration:** the
+  contract-sync reminder hook in `hooks/settings.template.json` matched only
+  the nonexistent `Models/` paths, so it never fired for SDK edits; a
+  workspace that installed it copies the new `PreToolUse` command into its
+  `.claude/settings.json`.
+
 ### Added
 
 - **Hooman Method references projection** — `heddle_workspace.references`

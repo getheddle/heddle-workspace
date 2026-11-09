@@ -72,7 +72,7 @@ flowchart LR
     direction TB
     HW["heddle-workspace/<br/><i>this toolkit</i>"]
     H["heddle/<br/><i>framework</i>"]
-    SDK["heddle-sdk/<br/><i>.NET + Swift</i>"]
+    SDK["heddle-sdk/<br/><i>.NET + Swift + JVM</i>"]
     APP["your-app/"]
     AU["audits/<br/><i>per-repo subfolders</i>"]
     SS["session-starters/<br/><i>cycles + briefs</i>"]
@@ -116,7 +116,7 @@ linked `SKILL.md` directly in any other agent.
 |---|---|---|
 | [`heddle-orient`](skills/heddle-orient/SKILL.md) | Session start, or after compaction, when working in any `getheddle/*` repo. | Cheap context entry — one screen instead of re-reading every anchor. |
 | [`heddle-invariants`](skills/heddle-invariants/SKILL.md) | Mid-session, before a structural change you weren't already planning. | Pulls the non-negotiable rules into context without a full anchor re-read. |
-| [`heddle-contract-sync`](skills/heddle-contract-sync/SKILL.md) | A change touched `heddle.core.messages`, `schemas/v1/*`, or a vendored SDK model. | Verifies/refreshes the schema sync from `heddle` (upstream) to `heddle-sdk` (downstream). |
+| [`heddle-contract-sync`](skills/heddle-contract-sync/SKILL.md) | A change touched `heddle.core.envelope`, `heddle.core.messages`, `schemas/v1/*` (schemas or fixtures), or an SDK codec. | Verifies/refreshes the schema sync from `heddle` (upstream) to `heddle-sdk` (downstream). |
 | [`heddle-preflight`](skills/heddle-preflight/SKILL.md) | Before every commit on a structural change. | Single repo-aware command runs lint, types, tests, docs build, CHANGELOG check. |
 | [`heddle-new-worker`](skills/heddle-new-worker/SKILL.md) | Adding a new LLM or processor worker. | Walks the scaffolding CLI + I/O contract rules. |
 | [`cross-repo-pr`](skills/cross-repo-pr/SKILL.md) | A change spans `heddle` + `heddle-sdk` and needs paired PRs. | Encodes merge order (upstream → downstream) and cross-linked PR bodies. |
@@ -376,7 +376,7 @@ that adds two Claude Code hooks tuned to a Heddle workspace:
 
 - **PostToolUse** — auto-`ruff --fix` on Python edits under `heddle/`.
 - **PreToolUse** — reminder to run `/heddle-contract-sync` when editing
-  schemas or vendored SDK models.
+  wire-protocol sources, schemas or SDK codecs.
 
 Enable when running the installer:
 

@@ -19,8 +19,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash -lc 'f=\"$CLAUDE_FILE_PATHS\"; case \"$f\" in *heddle/schemas/v1/*|*heddle-sdk/dotnet/src/*/Models/*|*heddle-sdk/swift/Sources/HeddleActor/Models/*) echo \"NOTE: editing a wire-protocol artifact ($f). heddle/ is upstream; heddle-sdk/ vendors. Run /heddle-contract-sync after this edit, and consider /cross-repo-pr.\" >&2 ;; esac; exit 0'",
-            "description": "Warn when editing schemas or vendored SDK models; remind to run contract-sync"
+            "command": "bash -lc 'f=\"$CLAUDE_FILE_PATHS\"; case \"$f\" in *heddle/schemas/v1/*|*heddle/src/heddle/core/envelope.py|*heddle/src/heddle/core/messages.py|*heddle/src/heddle/core/wire_json.py|*heddle-sdk/dotnet/src/Heddle.Sdk/Wire.cs|*heddle-sdk/dotnet/src/Heddle.Sdk/Models.cs|*heddle-sdk/swift/Sources/HeddleActor/Wire.swift|*heddle-sdk/swift/Sources/HeddleActor/Models.swift|*heddle-sdk/jvm/core/src/main/kotlin/heddle/sdk/Wire.kt|*heddle-sdk/jvm/core/src/main/kotlin/heddle/sdk/Models.kt) echo \"NOTE: editing a wire-protocol artifact ($f). heddle/ is upstream; heddle-sdk/ vendors. Run /heddle-contract-sync after this edit, and consider /cross-repo-pr.\" >&2 ;; esac; exit 0'",
+            "description": "Warn when editing wire-protocol sources, schemas or SDK codecs; remind to run contract-sync"
           }
         ]
       }
