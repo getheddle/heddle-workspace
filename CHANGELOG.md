@@ -24,6 +24,29 @@ the next `install.sh` and need no note.
 
 ## [Unreleased]
 
+### Added
+
+- **`workspace doc-check`** — mechanical checks on written claims across the
+  getheddle repos, the CI layer of repo dreaming (Heddle-Platform
+  `roadmap/repo-dreaming.md`). **M1:** a path that starts with a repo name
+  (`heddle-sdk/swift/Sources/HeddleActor/Wire.swift`) exists in that repo;
+  `heddle/<package path>` also resolves under `heddle/src/heddle/`.
+  **M2:** every path pattern in a hook template's `case` statement matches a
+  tracked file, so a reminder hook can't go silently dead. **M4:** relative
+  Markdown links resolve, except in a `docs/` tree that `mkdocs build
+  --strict` already checks. Scope is the files agents and readers act on
+  (`AGENTS.md`, `CLAUDE.md`, `README.md`, `skills/`, `agents/`, `hooks/`,
+  `docs/`, `anchors/`); templates, release notes, changelogs, feedback files
+  and audits are skipped, as are fenced code blocks and tokens with
+  placeholders. Repos are found by their `origin` remote, in the root and its
+  children, so the workspace layout and side-by-side CI checkouts both work; a
+  reference into a repo that isn't checked out is counted as unchecked.
+  `--repo NAME` fails only on that repo's files and reports other repos'
+  broken references into it as warnings; `--format github` emits workflow
+  annotations. On 2026-11-09 the getheddle repos check clean (308 claims);
+  against heddle-workspace before #12 it flags the dead `Models/` paths in
+  `/cross-repo-pr` and both dead hook patterns.
+
 ### Changed
 
 - **Wire-protocol skills and agents follow the `WireEnvelope` era and the

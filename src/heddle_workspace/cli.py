@@ -16,6 +16,9 @@ from heddle_workspace import (
     audit_repro as cmd_audit_repro,
 )
 from heddle_workspace import (
+    doc_check as cmd_doc_check,
+)
+from heddle_workspace import (
     doctor as cmd_doctor,
 )
 from heddle_workspace import (
@@ -213,6 +216,25 @@ def _build_parser() -> argparse.ArgumentParser:
         "semantic match, looser than the default file+line+concern matcher",
     )
     ars.set_defaults(func=cmd_audit_repro.run)
+
+    s = sub.add_parser(
+        "doc-check",
+        help="check written claims: repo-qualified paths (M1), hook patterns "
+        "(M2), relative links (M4)",
+    )
+    s.add_argument(
+        "--repo",
+        choices=cmd_doc_check.KNOWN_REPOS,
+        help="fail only on this repo's files; report other repos' broken "
+        "references into it as warnings (default: check every repo found)",
+    )
+    s.add_argument(
+        "--format",
+        choices=("text", "github"),
+        default="text",
+        help="output style; github emits workflow annotations",
+    )
+    s.set_defaults(func=cmd_doc_check.run)
 
     s = sub.add_parser(
         "references",
