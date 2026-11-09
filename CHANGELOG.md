@@ -26,6 +26,12 @@ the next `install.sh` and need no note.
 
 ### Added
 
+- **Writing convention: repo-qualified paths in agent-facing files**
+  (`AGENTS.md`, "Writing paths in agent-facing files"), so `workspace
+  doc-check` M1 covers them. Applied to the contract reviewer,
+  `/heddle-contract-sync` and the invariant guard: 30 more paths are now
+  checked, all resolving.
+
 - **`workspace doc-check` M3: registered claims.** A repo's `doc-claims.yaml`
   lists exact written claims and their source: a regex in a file must equal a
   `value`, a `toml` key, a `json_count`, a `line_count`, or a repo's

@@ -147,6 +147,16 @@ toolkit:
 Avoid duplication. When you would write the same paragraph in two repos,
 move it into a toolkit anchor and replace the duplicates with pointers.
 
+## Writing paths in agent-facing files
+
+In skills, subagents, hooks and `AGENTS.md` files, write every path an
+agent must open or edit **repo-qualified**: `heddle-sdk/jvm/core/src/main/kotlin/heddle/sdk/Wire.kt`,
+`heddle/src/heddle/core/envelope.py`. `workspace doc-check` (M1) then
+verifies it exists in CI, in every repo. Shorthand (`core/messages.py`) and
+patterns (`Models*`, `schemas/v1/*`) stay fine in prose for people; they are
+unchecked. A written claim that must equal a source (a version, a count)
+goes in the repo's `doc-claims.yaml` (M3).
+
 ## CHANGELOG discipline (cross-cutting)
 
 Each `getheddle/*` repo that produces released artifacts maintains a
