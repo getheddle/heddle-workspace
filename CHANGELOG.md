@@ -43,7 +43,7 @@ the next `install.sh` and need no note.
   reference into a repo that isn't checked out is counted as unchecked.
   `--repo NAME` fails only on that repo's files and reports other repos'
   broken references into it as warnings; `--format github` emits workflow
-  annotations. On 2026-11-09 the getheddle repos check clean (308 claims);
+  annotations, with paths relative to the checkout root. On 2026-11-09 the getheddle repos check clean (308 claims);
   against heddle-workspace before #12 it flags the dead `Models/` paths in
   `/cross-repo-pr` and both dead hook patterns.
 
