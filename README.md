@@ -237,6 +237,8 @@ workspace sync              # clone any manifest entry not yet on this machine
 workspace doctor            # verify remotes reachable + .gitignore in sync
 workspace agent-adapters install
                             # expose toolkit skills to supported coding agents
+workspace doc-check         # written claims: repo-qualified paths, hook
+                            # patterns, relative links (--repo NAME in CI)
 ```
 
 Non-interactive mode (`workspace init --non-interactive --name X
