@@ -225,3 +225,122 @@ def test_links_named_by_repo_are_checked_once_by_m1(
     assert [(f.check, f.message) for f in report.failures] == [
         ("M1", "`heddle-workspace/docs/GONE.md` does not exist")
     ]
+
+
+def _claims(*claims: dict) -> str:
+    import yaml
+
+    return yaml.safe_dump({"claims": list(claims)}, sort_keys=False)
+
+
+def test_m3_toml_value_and_drift(tmp_path: Path) -> None:
+    badge = {
+        "id": "readme-version-badge",
+        "file": "README.md",
+        "pattern": r"badge/heddle-v([0-9.]+)-",
+        "equals": {"toml": "pyproject.toml", "key": "project.version"},
+    }
+    _repo(
+        tmp_path,
+        "heddle",
+        {
+            "pyproject.toml": '[project]\nversion = "0.13.0"\n',
+            "README.md": "![v](https://img.shields.io/badge/heddle-v0.12.0-x.svg)\n",
+            "doc-claims.yaml": _claims(badge),
+        },
+    )
+    report = doc_check.run_checks(tmp_path, target="heddle")
+    assert [f.message for f in report.failures] == [
+        "readme-version-badge: `README.md` says 0.12.0, source says 0.13.0"
+    ]
+
+
+def test_m3_counts_cross_repo_and_rot(tmp_path: Path) -> None:
+    _repo(
+        tmp_path,
+        "heddle",
+        {
+            "docs/INV.md": "### 1. A\n### 2. B\n### 3. C\n",
+        },
+    )
+    _repo(
+        tmp_path,
+        "heddle-sdk",
+        {
+            "fixtures/manifest.json": '{"fixtures": [1, 2]}',
+            "docs/ROADMAP.md": "pass all 2 fixtures; 3 invariants\n",
+            "doc-claims.yaml": _claims(
+                {
+                    "id": "fixtures",
+                    "file": "docs/ROADMAP.md",
+                    "pattern": r"all (\d+) fixtures",
+                    "equals": {
+                        "json_count": "fixtures/manifest.json",
+                        "key": "fixtures",
+                    },
+                },
+                {
+                    "id": "invariants",
+                    "file": "docs/ROADMAP.md",
+                    "pattern": r"(\d+) invariants",
+                    "equals": {
+                        "line_count": "heddle/docs/INV.md",
+                        "pattern": r"^### \d+\.",
+                    },
+                },
+                {
+                    "id": "rotted",
+                    "file": "docs/ROADMAP.md",
+                    "pattern": r"no such text (\d+)",
+                    "equals": {"value": "1"},
+                },
+                {
+                    "id": "elsewhere",
+                    "file": "warp-design/README.md",
+                    "pattern": "x",
+                    "equals": {"value": "x"},
+                },
+            ),
+        },
+    )
+    report = doc_check.run_checks(tmp_path, target="heddle-sdk")
+    assert [f.message for f in report.failures] == [
+        "rotted: pattern no longer matches `docs/ROADMAP.md`"
+    ]
+    assert report.unchecked >= 1
+
+
+def test_m3_latest_tag(tmp_path: Path) -> None:
+    upstream = tmp_path / "remotes" / "heddle.git"
+    subprocess.run(["git", "init", "-q", "--bare", str(upstream)], check=True)
+    work = tmp_path / "seed"
+    subprocess.run(["git", "init", "-q", str(work)], check=True)
+    (work / "f").write_text("x\n")
+    git = ["git", "-C", str(work), "-c", "user.email=t@t", "-c", "user.name=t"]
+    subprocess.run([*git, "add", "f"], check=True)
+    subprocess.run([*git, "commit", "-qm", "x"], check=True)
+    for tag in ("v0.9.2", "v0.13.0", "v0.10.0"):
+        subprocess.run([*git, "tag", tag], check=True)
+    subprocess.run([*git, "push", "-q", str(upstream), "--tags"], check=True)
+
+    root = tmp_path / "ws"
+    heddle = root / "heddle"
+    subprocess.run(["git", "clone", "-q", str(upstream), str(heddle)], check=True)
+    _repo(
+        root,
+        "getheddle.github.io",
+        {
+            "index.html": "Latest: heddle v0.13.0, also v0.13.0\n",
+            "doc-claims.yaml": _claims(
+                {
+                    "id": "site",
+                    "file": "index.html",
+                    "pattern": r"heddle (v[0-9.]+)\b",
+                    "equals": {"latest_tag": "heddle"},
+                },
+            ),
+        },
+    )
+    report = doc_check.run_checks(root, target="getheddle.github.io")
+    assert report.failures == []
+    assert report.checked >= 1

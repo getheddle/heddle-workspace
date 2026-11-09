@@ -12,7 +12,8 @@ is written unambiguously, so a failure is a real broken claim:
 - **M4** — relative Markdown links resolve, except in a ``docs/`` tree that
   MkDocs already checks with ``mkdocs build --strict``.
 
-(M3, registered claims, is a later step.)
+- **M3** — registered claims hold: each entry in a repo's ``doc-claims.yaml``
+  names a text in a file and the source it must equal (see ``check_m3``).
 
 Repos are found by their ``origin`` remote, in the root directory and its
 immediate children, so the same command works in the workspace layout (where
@@ -34,6 +35,9 @@ import re
 import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any
+
+import yaml
 
 KNOWN_REPOS = (
     "heddle",
@@ -288,6 +292,140 @@ def check_m2(name: str, repo: Path, repos: dict[str, Path], report: Report) -> N
             )
 
 
+CLAIMS_FILE = "doc-claims.yaml"
+_TAG = re.compile(r"refs/tags/(v(\d+)\.(\d+)\.(\d+))$")
+
+
+class ClaimError(Exception):
+    """A claim or its source can't be read: a broken claim, reported as M3."""
+
+
+class Unavailable(Exception):
+    """The claim's source lives in a repo that isn't checked out."""
+
+
+def _claim_path(spec: str, repo: Path, repos: dict[str, Path]) -> Path:
+    head, _, rest = spec.partition("/")
+    if head in KNOWN_REPOS and rest:
+        if head not in repos:
+            raise Unavailable(head)
+        return repos[head] / rest
+    return repo / spec
+
+
+def _read(spec: str, repo: Path, repos: dict[str, Path]) -> str:
+    path = _claim_path(spec, repo, repos)
+    if not path.is_file():
+        raise ClaimError(f"`{spec}` does not exist")
+    return path.read_text(errors="replace")
+
+
+def _latest_tag(repo_name: str, repos: dict[str, Path]) -> str:
+    if repo_name not in repos:
+        raise Unavailable(repo_name)
+    out = _git(repos[repo_name], "ls-remote", "--tags", "origin", "v*")
+    tags = [m for line in out.splitlines() if (m := _TAG.search(line))]
+    if not tags:
+        raise ClaimError(f"no v<major>.<minor>.<patch> tags found for {repo_name}")
+    best = max(tags, key=lambda m: tuple(int(g) for g in m.groups()[1:]))
+    return best.group(1)
+
+
+def claim_source(source: dict[str, Any], repo: Path, repos: dict[str, Path]) -> str:
+    """The value a claim must equal, read from its source."""
+    if "value" in source:
+        return str(source["value"])
+    if "toml" in source:
+        import tomllib
+
+        data: Any = tomllib.loads(_read(source["toml"], repo, repos))
+        for key in str(source["key"]).split("."):
+            if not isinstance(data, dict) or key not in data:
+                raise ClaimError(f"`{source['key']}` not in `{source['toml']}`")
+            data = data[key]
+        return str(data)
+    if "json_count" in source:
+        data = json.loads(_read(source["json_count"], repo, repos))
+        for key in str(source.get("key", "")).split(".") if source.get("key") else []:
+            data = data[key]
+        return str(len(data))
+    if "line_count" in source:
+        pattern = re.compile(source["pattern"], re.MULTILINE)
+        return str(len(pattern.findall(_read(source["line_count"], repo, repos))))
+    if "latest_tag" in source:
+        return _latest_tag(source["latest_tag"], repos)
+    raise ClaimError(f"unknown source {sorted(source)}")
+
+
+def check_m3(name: str, repo: Path, repos: dict[str, Path], report: Report) -> None:
+    """Check ``doc-claims.yaml`` at the repo root.
+
+    Each claim has an ``id``, a ``file``, a ``pattern`` (a regex whose first
+    matched group, or whole match, is the claimed text; every match must agree) and an
+    ``equals`` source: ``value``, ``toml`` + ``key``, ``json_count`` (+ ``key``),
+    ``line_count`` + ``pattern``, or ``latest_tag`` (a repo name). File paths
+    are repo-relative, or repo-qualified to read another checked-out repo. A
+    pattern that no longer matches is itself a failure, so claims can't rot.
+    """
+    claims_path = repo / CLAIMS_FILE
+    if not claims_path.is_file():
+        return
+    text = claims_path.read_text()
+    try:
+        claims = (yaml.safe_load(text) or {}).get("claims", [])
+    except yaml.YAMLError as exc:
+        report.failures.append(
+            Finding("M3", name, CLAIMS_FILE, 1, f"unreadable: {exc}")
+        )
+        return
+    for claim in claims:
+        cid = claim.get("id", "?")
+        line = _line_of(text, max(text.find(f"id: {cid}"), 0))
+        try:
+            expected = claim_source(claim["equals"], repo, repos)
+            body = _read(claim["file"], repo, repos)
+            matches = [
+                next((g for g in m.groups() if g is not None), m.group(0))
+                for m in re.finditer(claim["pattern"], body)
+            ]
+        except Unavailable:
+            report.unchecked += 1
+            continue
+        except (
+            ClaimError,
+            KeyError,
+            re.error,
+            json.JSONDecodeError,
+            ValueError,
+        ) as exc:
+            report.failures.append(
+                Finding("M3", name, CLAIMS_FILE, line, f"{cid}: {exc}")
+            )
+            continue
+        report.checked += 1
+        if not matches:
+            report.failures.append(
+                Finding(
+                    "M3",
+                    name,
+                    CLAIMS_FILE,
+                    line,
+                    f"{cid}: pattern no longer matches `{claim['file']}`",
+                )
+            )
+        elif any(m != expected for m in matches):
+            found = ", ".join(sorted(set(matches)))
+            report.failures.append(
+                Finding(
+                    "M3",
+                    name,
+                    CLAIMS_FILE,
+                    line,
+                    f"{cid}: `{claim['file']}` says {found}, source says {expected}",
+                )
+            )
+
+
 def run_checks(root: Path, target: str | None = None) -> Report:
     repos = find_repos(root)
     if target is not None and target not in repos:
@@ -297,6 +435,7 @@ def run_checks(root: Path, target: str | None = None) -> Report:
         check_m1(name, repo, repos, report, target)
         if target is None or name == target:
             check_m2(name, repo, repos, report)
+            check_m3(name, repo, repos, report)
             check_m4(name, repo, repos, report)
     return report
 
