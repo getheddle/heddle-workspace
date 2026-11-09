@@ -214,6 +214,10 @@ def check_m4(name: str, repo: Path, repos: dict[str, Path], report: Report) -> N
             continue
         text = path.read_text(errors="replace")
         for target, line in relative_links(text):
+            if target.removeprefix("./").partition("/")[0] in KNOWN_REPOS:
+                # Named by repo: M1 checks it, in either layout (the umbrella's
+                # siblings sit inside it locally and beside it in CI).
+                continue
             resolved = (path.parent / target).resolve()
             if not _within(resolved, repo) and not any(
                 _within(resolved, k) for k in known if k != repo

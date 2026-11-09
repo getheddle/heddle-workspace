@@ -207,3 +207,21 @@ def test_cli_exit_codes_and_github_format(tmp_path: Path, capsys) -> None:
         ["git", "-C", str(tmp_path / "heddle-workspace"), "add", "-A"], check=True
     )
     assert main(["-C", str(tmp_path), "doc-check"]) == 0
+
+
+def test_links_named_by_repo_are_checked_once_by_m1(
+    tmp_path: Path,
+) -> None:
+    _repo(
+        tmp_path,
+        "platform-workspace",
+        {
+            "AGENTS.md": "[toolkit](heddle-workspace/) [doc](heddle-workspace/docs/A.md)\n"
+            "[gone](heddle-workspace/docs/GONE.md)\n",
+        },
+    )
+    _repo(tmp_path, "heddle-workspace", {"docs/A.md": "x\n"})
+    report = doc_check.run_checks(tmp_path, target="platform-workspace")
+    assert [(f.check, f.message) for f in report.failures] == [
+        ("M1", "`heddle-workspace/docs/GONE.md` does not exist")
+    ]
