@@ -292,9 +292,9 @@ each session.
   prefer a sub-tree mirror (e.g., `tests/orchestrator/test_*.py`)
   when introducing one is straightforward. Existing top-level tests
   migrate opportunistically when touched, not as a batch.
-- Canonical example of the contrib pattern: `tests/contrib/events/`,
-  introduced in Sprint 1 of the M2 plan
-  (`heddle-contrib-events-m2-architecture-v7.md`).
+- Canonical example of the contrib pattern: `tests/contrib/council/`
+    (one test module per source module: `test_config.py`,
+    `test_runner.py`, `test_protocol.py`, …).
 - File naming inside a `tests/contrib/<pkg>/` sub-tree drops the
   redundant prefix — the directory tells you the package. E.g.
   `tests/contrib/duckdb/test_query.py`, not
@@ -303,7 +303,7 @@ each session.
   fixture module, imported via conftest if needed). Public test
   utilities meant for downstream-app reuse live in
   `heddle/src/heddle/contrib/<pkg>/testing.py` and ARE part of the
-  package's public surface.
+  package's public surface. (none currently ship one)
 
 ### `heddle-sdk/` — Swift test framework
 
