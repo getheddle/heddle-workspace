@@ -31,7 +31,7 @@ The caller gives you:
   cross-repo findings.
 - `topic:` — kebab-case subject (`contrib-events`, `swift-deps`,
   `nav-drift`, …). Becomes the filename stem.
-- Optionally: a narrower scope ("only `heddle/contrib/events/**`"),
+- Optionally: a narrower scope ("only `heddle/src/heddle/contrib/docproc/**`"),
   prior audit to refresh, or a list of specific findings to verify.
 
 ## Your context (read first, in order)
